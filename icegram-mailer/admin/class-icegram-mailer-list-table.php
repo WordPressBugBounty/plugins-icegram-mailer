@@ -7,7 +7,7 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 class Icegram_Mailer_List_Table extends WP_List_Table {
 
 	/**
-	 * Hide top pagination
+	 * Hide top pagination but keep bulk actions
 	 *
 	 * @param string $which
 	 *
@@ -17,6 +17,19 @@ class Icegram_Mailer_List_Table extends WP_List_Table {
 
 		if ( 'bottom' == $which ) {
 			parent::pagination( $which );
+		}
+	}
+
+	/**
+	 * Display extra tablenav (top only for bulk actions)
+	 *
+	 * @param string $which
+	 *
+	 * @since 1.0.8
+	 */
+	protected function extra_tablenav( $which ) {
+		if ( 'top' === $which ) {
+			// Show bulk actions at top
 		}
 	}
 

@@ -5,7 +5,7 @@ Tags: Email Delivery, Email Log, Email Marketing, Email Sending, SMTP
 Requires at least: 4.7
 Tested up to: 6.9
 Requires PHP: 7.0
-Stable tag: 1.0.8
+Stable tag: 1.0.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -203,12 +203,15 @@ A: You can view detailed logs and analytics directly from your WordPress dashboa
 
 == Upgrade Notice ==
 
-= 1.0.8 =
+= 1.0.9 =
 
-* Fix: Resolved "API key is empty" error when sending emails in some cases
-* Update: Tested up to WordPress 6.9
+* Improvement: Added option to "Resend" emails
 
 == Changelog ==
+
+= 1.0.9 =
+
+* Improvement: Added option to "Resend" emails
 
 = 1.0.8 =
 

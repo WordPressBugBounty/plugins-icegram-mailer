@@ -71,6 +71,7 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 		);
 
 		$this->db = new Icegram_Mailer_Logs_Table();
+		$this->process_bulk_action();
 	}
 
 	/**
@@ -106,14 +107,10 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 				<div id="post-body" class="metabox-holder column-1">
 					<div id="post-body-content">
 						<div class="meta-box-sortables ui-sortable">
-							<form method="get">
+							<form method="post">
 								<?php
 								// Display search field and other available filter fields.
 								$this->prepare_items();
-								?>
-							</form>
-							<form method ='post'>
-								<?php
 								$this->display();
 								?>
 							</form>
@@ -182,19 +179,43 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 	}
 
 	/**
-	 * Render the bulk edit checkbox
+	 * Render checkbox column
 	 *
-	 * @param array $item
+	 * @param array $item Item data.
 	 *
 	 * @return string
 	 *
-	 * @since 4.0.0
+	 * @since 1.0.8
 	 */
 	public function column_cb( $item ) {
 		return sprintf(
-			'<input type="checkbox" class="checkbox" name="subscribers[]" value="%s"/>',
+			'<input type="checkbox" class="checkbox" name="email_ids[]" value="%s"/>',
 			$item['id']
 		);
+	}
+
+	/**
+	 * Render subject column with row actions
+	 *
+	 * @param array $item Item data.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.8
+	 */
+	public function column_subject( $item ) {
+		$subject = ! empty( $item['subject'] ) ? esc_html( $item['subject'] ) : __( '(no subject)', 'icegram-mailer' );
+
+		$actions = array();
+
+		// Add resend action.
+		$actions['resend'] = sprintf(
+			'<a href="#" class="icegram-mailer-resend-email" data-email-id="%d">%s</a>',
+			$item['id'],
+			__( 'Resend', 'icegram-mailer' )
+		);
+
+		return sprintf( '%1$s %2$s', $subject, $this->row_actions( $actions ) );
 	}
 
 	/**
@@ -207,11 +228,12 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 	public function get_columns() {
 
 		$columns = array(
-			'subject' => __( 'Subject', 'icegram-mailer' ),
-			'to' => __( 'To', 'icegram-mailer' ),
-			'status' => __( 'Status', 'icegram-mailer' ),
+			'cb'         => '<input type="checkbox" />',
+			'subject'    => __( 'Subject', 'icegram-mailer' ),
+			'to'         => __( 'To', 'icegram-mailer' ),
+			'status'     => __( 'Status', 'icegram-mailer' ),
 			'created_at' => __( 'Sent at', 'icegram-mailer' ),
-			'opened_at' => __( 'Opened at', 'icegram-mailer' ),
+			'opened_at'  => __( 'Opened at', 'icegram-mailer' ),
 		);
 
 		return $columns;
@@ -240,5 +262,62 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 		$contacts = $this->get_lists( $per_page, $current_page );
 
 		$this->items = $contacts;
+	}
+
+	/**
+	 * Get bulk actions
+	 *
+	 * @return array
+	 *
+	 * @since 1.0.8
+	 */
+	protected function get_bulk_actions() {
+		return array(
+			'bulk_resend' => __( 'Resend', 'icegram-mailer' ),
+		);
+	}
+
+	/**
+	 * Process bulk actions
+	 *
+	 * @since 1.0.8
+	 */
+	public function process_bulk_action() {
+		$action = $this->current_action();
+
+		if ( 'bulk_resend' === $action ) {
+			// Check nonce.
+			if ( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ), 'bulk-' . $this->_args['plural'] ) ) {
+				wp_die( esc_html__( 'Security check failed', 'icegram-mailer' ) );
+			}
+
+			$email_ids = isset( $_REQUEST['email_ids'] ) ? array_map( 'absint', $_REQUEST['email_ids'] ) : array();
+
+			if ( ! empty( $email_ids ) ) {
+				$resent_count = 0;
+				$failed_count = 0;
+
+				foreach ( $email_ids as $email_id ) {
+					$result = Icegram_Mailer_Dashboard_Controller::resend_email( array( 'email_id' => $email_id ) );
+					if ( ! empty( $result['status'] ) && 'success' === $result['status'] ) {
+						$resent_count++;
+					} else {
+						$failed_count++;
+					}
+				}
+
+				$redirect_url = remove_query_arg( array( 'action', 'action2', 'email_ids', '_wpnonce', '_wp_http_referer' ) );
+				$redirect_url = add_query_arg(
+					array(
+						'resent' => $resent_count,
+						'failed' => $failed_count,
+					),
+					$redirect_url
+				);
+
+				wp_safe_redirect( $redirect_url );
+				exit;
+			}
+		}
 	}
 }

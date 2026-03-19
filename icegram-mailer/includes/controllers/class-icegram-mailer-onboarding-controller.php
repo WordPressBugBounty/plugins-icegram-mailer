@@ -27,9 +27,7 @@ if ( ! class_exists( 'Icegram_Mailer_Onboarding_Controller' ) ) {
 	 * @since 4.6.0
 	 * @var string
 	 */
-		public static $api_url = 'https://api.igeml.com/';
-
-	/**
+	public static $api_url = 'https://api.igeml.com/'; /**
 	 * Service command
 	 *
 	 * @var string
@@ -356,7 +354,6 @@ if ( ! class_exists( 'Icegram_Mailer_Onboarding_Controller' ) ) {
 			$home_url   = home_url();
 			$parsed_url = wp_parse_url( $home_url );
 			$domain     = ! empty( $parsed_url['host'] ) ? $parsed_url['host'] : '';
-			//$domain   = 'example.com';
 			$source     = 'icegram-mailer';
 			$limit      = 3000;
 

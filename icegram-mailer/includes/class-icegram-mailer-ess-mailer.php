@@ -34,15 +34,13 @@ if ( ! class_exists( 'Icegram_Mailer_ESS_Mailer' ) ) {
 		 */
 		public $email_sent_code = 200;
 
-		/**
-		 * Icegram API Url
-		 *
-		 * @var string
-		 *
-		 */
-		public $api_url = 'https://api.igeml.com/accounts/mail/send/';
-
-		/**
+	/**
+	 * Icegram API Url
+	 *
+	 * @var string
+	 *
+	 */
+	public $api_url = 'https://api.igeml.com/accounts/mail/send/';		/**
 		 * Private API Key
 		 *
 		 * @var string
@@ -109,21 +107,19 @@ if ( ! class_exists( 'Icegram_Mailer_ESS_Mailer' ) ) {
 		 * 
 		 * @since 5.6.0
 		 */
-		public function set_mailer_data() {
+	public function set_mailer_data() {
 
-			$ess_data = Icegram_Mailer_Account::get_ess_data();
+		$ess_data = Icegram_Mailer_Account::get_ess_data();
 
-			if ( ES()->is_const_defined( 'icegram', 'api_key' ) ) {
-				$this->api_key = ES()->get_const_value( 'icegram', 'api_key' );
-			} else {
-				$this->api_key = ! empty( $ess_data['api_key'] ) ? $ess_data['api_key'] : '';
-			}
+		if ( ES()->is_const_defined( 'icegram', 'api_key' ) ) {
+			$this->api_key = ES()->get_const_value( 'icegram', 'api_key' );
+		} else {
+			$this->api_key = ! empty( $ess_data['api_key'] ) ? $ess_data['api_key'] : '';
+		}
 
-			if ( empty( $this->api_key ) ) {
-				return $this->do_response( 'error', __( 'API key is empty.', 'icegram-mailer' ) );
-			}
-
-			// Reset body and headers.
+		if ( empty( $this->api_key ) ) {
+			return $this->do_response( 'error', __( 'API key is empty.', 'icegram-mailer' ) );
+		}			// Reset body and headers.
 			$this->reset_mailer_data();
 
 			// We don't need to encode the api key using base64 since it now not required in Icegram api
@@ -364,12 +360,12 @@ if ( ! class_exists( 'Icegram_Mailer_ESS_Mailer' ) ) {
 				'body'    => $this->get_body(),
 			));
 			
-			$response = wp_remote_post( $this->api_url, $params );
-			if ( ! is_wp_error( $response ) ) {
-				$body = ! empty( $response['body'] ) && icegram_mailer_is_valid_json( $response['body'] ) ? json_decode( $response['body'], true ) : '';
-				if ( ! empty( $body ) ) {
-					$status = ! empty( $body['status'] ) ? $body['status'] : 'error';
-					if ( 'success' === $status ) {
+		$response = wp_remote_post( $this->api_url, $params );
+		if ( ! is_wp_error( $response ) ) {
+			$body = ! empty( $response['body'] ) && icegram_mailer_is_valid_json( $response['body'] ) ? json_decode( $response['body'], true ) : '';
+			if ( ! empty( $body ) ) {
+				$status = ! empty( $body['status'] ) ? $body['status'] : 'error';
+				if ( 'success' === $status ) {
 						if ( isset( $body['remaining_limit'] ) ) {
 							$this->remaining_limit = $body['remaining_limit'];
 						} else {
@@ -757,12 +753,12 @@ if ( ! class_exists( 'Icegram_Mailer_ESS_Mailer' ) ) {
 				'body'    => $this->get_body(),
 			));
 			
-			$response = wp_remote_post( $this->api_url, $params );
-			if ( ! is_wp_error( $response ) ) {
-				$body = ! empty( $response['body'] ) && icegram_mailer_is_valid_json( $response['body'] ) ? json_decode( $response['body'], true ) : '';
-				if ( ! empty( $body ) ) {
-					$status = ! empty( $body['status'] ) ? $body['status'] : 'error';
-					if ( 'success' === $status ) {
+		$response = wp_remote_post( $this->api_url, $params );
+		if ( ! is_wp_error( $response ) ) {
+			$body = ! empty( $response['body'] ) && icegram_mailer_is_valid_json( $response['body'] ) ? json_decode( $response['body'], true ) : '';
+			if ( ! empty( $body ) ) {
+				$status = ! empty( $body['status'] ) ? $body['status'] : 'error';
+				if ( 'success' === $status ) {
 						if ( isset( $body['remaining_limit'] ) ) {
 							$this->remaining_limit = $body['remaining_limit'];
 						} else {
@@ -783,22 +779,20 @@ if ( ! class_exists( 'Icegram_Mailer_ESS_Mailer' ) ) {
 						} else {
 							$error_message = __( 'An unknown error has occured. Please try again later.', 'icegram-mailer' );
 						}
-					}
-					return $this->do_response( 'error', $error_message );
-				} else {
-					return $this->do_response( 'error', wp_remote_retrieve_response_message( $response ) );
-				}
-			} else {
-				$error_message = $response->get_error_message();
-				return $this->do_response( 'error', $error_message );
 			}
-
-			//ES()->logger->info( 'Email Sent Successfully Using Icegram', $this->logger_context );
-
-			return $this->do_response( 'success' );
+			return $this->do_response( 'error', $error_message );
+		} else {
+			return $this->do_response( 'error', wp_remote_retrieve_response_message( $response ) );
 		}
+	} else {
+		$error_message = $response->get_error_message();
+		return $this->do_response( 'error', $error_message );
+	}
 
-		/**
+	//ES()->logger->info( 'Email Sent Successfully Using Icegram', $this->logger_context );
+
+	return $this->do_response( 'success' );
+}		/**
 		 * Check if the batch limit has been reached or not
 		 *
 		 * @return boolean

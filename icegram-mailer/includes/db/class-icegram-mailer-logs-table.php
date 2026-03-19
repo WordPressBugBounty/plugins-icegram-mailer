@@ -37,10 +37,9 @@ class Icegram_Mailer_Logs_Table extends Icegram_Mailer_Base_Table {
 	public function __construct() {
 		global $wpdb;
 
-		$this->table_name = $wpdb->prefix . 'icegram_mailer_email_logs';
-
-		$this->version = '1.0';
-
+		$this->table_name  = $wpdb->prefix . 'icegram_mailer_email_logs';
+		$this->primary_key = 'id';
+		$this->version     = '1.0';
 	}
 
 	/**
@@ -176,6 +175,29 @@ class Icegram_Mailer_Logs_Table extends Icegram_Mailer_Base_Table {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Get single email log by ID
+	 *
+	 * @param int $id Email log ID.
+	 * @return array|null Email log data or null if not found.
+	 * @since 1.0.8
+	 */
+	public function get( $id ) {
+		global $wpdb;
+
+		$id = absint( $id );
+		if ( empty( $id ) ) {
+			return null;
+		}
+
+		$sql = $wpdb->prepare(
+			"SELECT * FROM {$this->table_name} WHERE id = %d",
+			$id
+		);
+
+		return $wpdb->get_row( $sql, ARRAY_A );
 	}
 
 }

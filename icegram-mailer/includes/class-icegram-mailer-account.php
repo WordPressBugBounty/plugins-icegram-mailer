@@ -210,7 +210,7 @@ class Icegram_Mailer_Account {
 		$home_url   = home_url();
 		$parsed_url = wp_parse_url( $home_url );
 		$domain     = ! empty( $parsed_url['host'] ) ? $parsed_url['host'] : '';
-		
+		//$domain     = 'demo' . time() . '.com'; // Unique domain for dev testing
 		$source     = 'icegram-mailer';
 		$limit      = 3000;
 
