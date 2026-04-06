@@ -5,7 +5,7 @@ Tags: Email Delivery, Email Log, Email Marketing, Email Sending, SMTP
 Requires at least: 4.7
 Tested up to: 6.9
 Requires PHP: 7.0
-Stable tag: 1.0.9
+Stable tag: 1.0.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -203,11 +203,19 @@ A: You can view detailed logs and analytics directly from your WordPress dashboa
 
 == Upgrade Notice ==
 
-= 1.0.9 =
+= 1.0.10 =
 
-* Improvement: Added option to "Resend" emails
+* Improvement: Added option to fetch email usage data
+* Improvement: Notify admin when email sending fails or sending limit is reached
+* Fix: Resolved PHP warning "Unsupported value type"
 
 == Changelog ==
+
+= 1.0.10 =
+
+* Improvement: Added option to fetch email usage data
+* Improvement: Notify admin when email sending fails or sending limit is reached
+* Fix: Resolved PHP warning "Unsupported value type"
 
 = 1.0.9 =
 

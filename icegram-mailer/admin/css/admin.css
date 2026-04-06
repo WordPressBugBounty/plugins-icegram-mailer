@@ -204,3 +204,20 @@ input.icegram-mailer-input[type="email"] {
 .icegram-mailer-loading-modal .icegram-mailer-modal {
     min-width: 300px;
 }
+
+.animate-spin {
+    animation: icegram-mailer-spin 1s linear infinite;
+}
+ 
+.refresh-now-btn {
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.refresh-now-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

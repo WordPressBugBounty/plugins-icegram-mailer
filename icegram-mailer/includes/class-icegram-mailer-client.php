@@ -307,7 +307,7 @@ if ( ! class_exists( 'Icegram_Mailer_Client' ) ) {
 					'to'          => is_array( $message->to ) ? implode( ',', $message->to ) : $message->to,
 					'subject'     => $message->subject,
 					'headers'     => is_array( $message->headers ) ? wp_json_encode( $message->headers ): $message->headers,
-					'attachments'     => ! empty( $message->attachments ) ? wp_json_encode( $message->attachments ): [],
+					'attachments'     => ! empty( $message->attachments ) ? wp_json_encode( $message->attachments ): '',
 					'body'        => $message->body,
 					'status'      => $status,
 					'error'       => $message->error,

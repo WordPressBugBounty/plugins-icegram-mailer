@@ -135,7 +135,39 @@ jQuery(document).ready(function($) {
             jQuery('.icegram-mailer-modal-overlay').remove();
         }, 300);
     }
-    
+
+    /**
+     * Helper function to reset button state
+     * 
+     * @param {jQuery} button - The button element
+     * @param {jQuery} svg - The SVG icon element
+     * @param {string} buttonText - The text to set on the button
+     */
+    function resetButtonState(button, svg, buttonText) {
+        button.prop('disabled', false);
+        button.removeClass('opacity-50 cursor-not-allowed');
+        svg.removeClass('animate-spin');
+        button.contents().filter(function() {
+            return this.nodeType === 3; // Text node
+        }).last().replaceWith(' ' + buttonText);
+    }
+
+    /**
+     * Helper function to set button loading state
+     * 
+     * @param {jQuery} button - The button element
+     * @param {jQuery} svg - The SVG icon element
+     * @param {string} loadingText - The loading text to display
+     */
+    function setButtonLoadingState(button, svg, loadingText) {
+        button.prop('disabled', true);
+        button.addClass('opacity-50 cursor-not-allowed');
+        svg.addClass('animate-spin');
+        button.contents().filter(function() {
+            return this.nodeType === 3; // Text node
+        }).last().replaceWith(' ' + loadingText);
+    }
+
     // Handle modal button clicks
     jQuery(document).on('click', '.icegram-mailer-modal-footer button', function() {
         var btnId = jQuery(this).data('btn-id');
@@ -248,6 +280,89 @@ jQuery(document).ready(function($) {
                 }
             ]
         );
+    });
+
+    // Handle refresh now button click
+    jQuery(document).on('click', '#refresh-now-btn', function(e) {
+        e.preventDefault();
+        
+        var refreshButton = jQuery(this); 
+        var svg = refreshButton.find('svg');
+        var originalButtonText = __('Refresh now', 'icegram-mailer');
+
+        // Set button loading state
+        setButtonLoadingState(refreshButton, svg, __('Refreshing...', 'icegram-mailer'));
+      
+        jQuery.ajax({
+            type: 'POST',
+            url: ajaxurl,
+            data: {
+                action: 'icegram-mailer',
+                handler: 'dashboard',
+                method: 'sync_account_stats',
+                security: icegram_mailer_admin_js_data._wpnonce
+            },
+            dataType: 'json',
+            success: function(response) { 
+                
+                // Reset button state
+                resetButtonState(refreshButton, svg, originalButtonText);
+            
+                if (response && response.status === 'success') {
+                    // Show success message
+                    var successNotice = '<div class="notice notice-success is-dismissible" style="margin: 20px 0; background: #fff; border-left: 4px solid #46b450; padding: 12px; box-shadow: 0 1px 1px rgba(0,0,0,.04);">' +
+                        '<p style="margin: 0;">' + __('Usage data refreshed successfully.', 'icegram-mailer') + '</p>' +
+                        '<button type="button" class="notice-dismiss" style="position: absolute; top: 0; right: 0; padding: 9px; background: none; border: none; cursor: pointer;"><span class="screen-reader-text">' + __('Dismiss this notice.', 'icegram-mailer') + '</span></button>' +
+                        '</div>';
+                    
+                    // Remove any existing notices
+                    jQuery('.notice.notice-success, .notice.notice-error').remove();
+                    
+                    // Use .one() to avoid duplicate handlers
+                    jQuery(document).one('click', '.notice-dismiss', function() {
+                        jQuery(this).closest('.notice').fadeOut();
+                    });
+                    
+                    // Update UI with pre-calculated server data - NO calculations needed!
+                    if (response.data) {
+                        var data = response.data;
+                        
+                        // Update email sent text
+                        jQuery('#ig-mailer-email-sent').html(data.email_sent_text);
+                        
+                        // Update remaining text
+                        jQuery('#ig-mailer-remaining').html(data.remaining_text);
+                        
+                        // Update progress bar
+                        var progressBar = jQuery('#ig-mailer-progress-bar');
+                        progressBar.css('width', data.percentage_used + '%');
+                        progressBar.removeClass('bg-indigo-600 bg-yellow-600 bg-orange-600 bg-red-600');
+                        progressBar.addClass(data.progress_bar_class);
+                        
+                        // Update reset date
+                        if (data.next_reset) {
+                            jQuery('#ig-mailer-next-reset').html(__('resets on ', 'icegram-mailer') + data.next_reset);
+                        }
+                    }
+                    
+                    // Auto-dismiss notice after 3 seconds
+                    setTimeout(function() {
+                        jQuery('.notice.notice-success').fadeOut(function() {
+                            jQuery(this).remove();
+                        });
+                    }, 3000);
+                     
+                } else {
+                    // Show error message
+                    var errorMessage = response && response.message ? response.message : __('Failed to refresh usage data.', 'icegram-mailer');
+                    alert(errorMessage);
+                }
+            },
+            error: function(xhr, status, error) {
+                resetButtonState(refreshButton, svg, originalButtonText);
+                alert(__('An error occurred while refreshing. Please try again.', 'icegram-mailer'));
+            }
+        });
     });
 
     // Show success/error messages after bulk resend

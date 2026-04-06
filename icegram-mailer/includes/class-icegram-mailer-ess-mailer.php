@@ -712,9 +712,7 @@ if ( ! class_exists( 'Icegram_Mailer_ESS_Mailer' ) ) {
 
 		public function set_ess_metadata() {
 
-			$plan                 = Icegram_Mailer_Account::get_plan();
-			$premium_plans        = array( 'pro', 'max' );
-			$is_premium_plan      = in_array( $plan, $premium_plans, true );
+			$is_premium_plan      = ! Icegram_Mailer_Common::is_free_plan_by_limit();
 			$ess_metadata         = array();
 			$add_ess_footer_image = true;
 			$footer_image_url     = trailingslashit( ICEGRAM_MAILER_PLUGIN_URL ) . 'admin/images/ess-footer-image.png';

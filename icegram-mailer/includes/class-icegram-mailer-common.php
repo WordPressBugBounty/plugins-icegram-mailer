@@ -15,6 +15,14 @@ if ( ! class_exists( 'Icegram_Mailer_Common' ) ) {
 	class Icegram_Mailer_Common {
 
 		/**
+         * Free plan limit threshold (for branding control)
+         * Accounts with allocated limit <= 200 are considered free plan
+         * 
+         * @since 5.7.0
+         */
+        const FREE_PLAN_LIMIT_THRESHOLD = 200; 
+
+		/**
 		 * Get mailbox name
 		 *
 		 * @return string
@@ -168,7 +176,7 @@ if ( ! class_exists( 'Icegram_Mailer_Common' ) ) {
 		 */
 		public static function get_utm_tracking_url( $utm_args = array() ) {
 
-			$url          = ! empty( $utm_args['url'] ) ? $utm_args['url'] : 'https://www.icegram.com/email-sending-service/';
+			$url          = ! empty( $utm_args['url'] ) ? $utm_args['url'] : 'https://www.icegram.com/mailer/';
 			$utm_source   = ! empty( $utm_args['utm_source'] ) ? $utm_args['utm_source'] : 'in_app';
 			$utm_medium   = ! empty( $utm_args['utm_medium'] ) ? $utm_args['utm_medium'] : '';
 			$utm_campaign = ! empty( $utm_args['utm_campaign'] ) ? $utm_args['utm_campaign'] : 'ess_upsell';
@@ -187,6 +195,41 @@ if ( ! class_exists( 'Icegram_Mailer_Common' ) ) {
 
 			return $url;
 
+		}
+
+		/**
+         * Get allowed HTML tags for wp_kses
+         *
+         * @return array Allowed HTML tags and attributes.
+         */
+        public static function get_allowed_html_for_emails() {
+            return array(
+                'strong' => array(
+                    'style' => true,
+                ), 
+            );
+        }
+
+		 /**
+		 * Check if current plan is free (lite) based on allocated limit
+		 * 
+		 * Lite plan: allocated limit <= 200
+		 * Premium plan (pro/max): allocated limit > 200
+		 * 
+		 * @return bool True if free plan (lite), false if premium (pro/max)
+		 * @since 5.7.0
+		 */
+		public static function is_free_plan_by_limit() {
+
+			static $is_free_plan = null;
+		
+			if ( null === $is_free_plan ) {
+				$ess_data = Icegram_Mailer_Account::get_ess_data();
+				$allocated_limit = ! empty( $ess_data['allocated_limit'] ) ? $ess_data['allocated_limit'] : 0;
+				$is_free_plan = ( $allocated_limit <= self::FREE_PLAN_LIMIT_THRESHOLD );
+			}
+
+			return $is_free_plan;
 		}
 	}
 }

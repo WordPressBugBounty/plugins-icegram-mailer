@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<?php echo esc_html__( 'Enable Icegram mailer', 'icegram-mailer' ); ?>
 							</label>
 							<p class="help-text">
-								<?php echo esc_html__( 'Turn this on to allow Icegram Mailer to handle your emails', 'icegram-mailer' ); ?>
+								<?php echo esc_html__( 'Turn this on to allow Icegram Mailer to handle your emails.', 'icegram-mailer' ); ?>
 							</p>
 						</div>
 					</div>
@@ -52,7 +52,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<?php echo esc_html__( 'Sender', 'icegram-mailer' ); ?>
 							</label>
 							<p class="help-text">
-								<?php echo esc_html__( 'The "From name" and "From email" people will see when they receive emails', 'icegram-mailer' ); ?>
+								<?php echo esc_html__( 'The "From name" and "From email" people will see when they receive emails.', 'icegram-mailer' ); ?>
 							</p>
 						</div>
 					</div>
@@ -91,6 +91,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</div>
 				
 				<hr class="mt-2">
+
+				<div class="flex mt-4 mb-4">
+                    <div class="w-1/3">
+                        <div>
+                            <label for="show-sent-by-icegram" class="text-lg font-semibold">
+                                <?php echo esc_html__( 'Show "Sent by Icegram"', 'icegram-mailer' ); ?>
+                                <?php if ( $is_free_plan ) : ?>
+                                    <a href="<?php echo esc_url( Icegram_Mailer_Common::get_utm_tracking_url( array( 'utm_source' => 'in_app', 'utm_medium' => 'settings', 'utm_campaign' => 'upgrade_to_premium' ) ) ); ?>" target="_blank" class="inline-flex items-center ml-2" title="<?php echo esc_attr__( 'Upgrade to Premium', 'icegram-mailer' ); ?>">
+                                        <img src="<?php echo esc_url( ICEGRAM_MAILER_PLUGIN_URL . '/admin/images/crown-icon.svg' ); ?>" alt="<?php echo esc_attr__( 'Upgrade to Premium', 'icegram-mailer' ); ?>" class="w-4 h-4 inline-block" />
+                                    </a>
+                                <?php endif; ?>
+                            </label>
+                            <p class="help-text">
+                                <?php echo esc_html__( 'Include "Sent by Icegram" link in the footer of your emails.', 'icegram-mailer' ); ?>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="w-2/3">
+                        <input type="checkbox" id="show-sent-by-icegram" name="icegram-mailer-settings[branding_enabled]" class="mr-2 <?php echo $is_free_plan ? 'opacity-50 cursor-not-allowed' : ''; ?>" value="yes" <?php checked( $branding_enabled, 'yes', true ); ?> <?php disabled( $is_free_plan, true, true ); ?>>
+                    </div>
+                </div>
+
+				<hr class="mt-2">
 				
 				<div class="flex mt-4 mb-4">
 					<div class="w-1/3">
@@ -98,10 +121,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<label class="text-lg font-semibold">
 								<?php echo esc_html__( 'Email testing', 'icegram-mailer' ); ?>
 							</label>
+							<p class="help-text">
+                                <?php echo esc_html__( 'Enter email address to test your configuration.', 'icegram-mailer' ); ?>
+                            </p>
 						</div>
 					</div>
 					<div class="w-2/3">
-					<input id="icegram-mailer-test-email" type="text" class="icegram-mailer-input w-full p-2 border rounded mt-2" placeholder="Enter email" value="<?php echo esc_attr( $test_email ); ?>">
+						<input id="icegram-mailer-test-email" type="text" class="icegram-mailer-input w-full p-2 border rounded mt-2" placeholder="Enter email" value="<?php echo esc_attr( $test_email ); ?>">
 					
 					<div>
 					<button id="icegram-mailer-send-test-email" class="lighter-gray mt-2 px-4 py-2 text-white rounded">

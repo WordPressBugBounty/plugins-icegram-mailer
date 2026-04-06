@@ -787,9 +787,11 @@ class Icegram_Mailer_Account {
 					$ess_data['next_reset']                 = $account['next_reset'];
 					$ess_data['used_limit'][$current_month] = $account['used_limit'];
 					update_option( 'icegram_mailer_ess_data', $ess_data );
+					return true;
 				}
 			}
 		}
+		return false;
 	}
 
 	public static function is_opted_for_ess() {
@@ -902,13 +904,13 @@ class Icegram_Mailer_Account {
 		}
 
 		$cta_url = Icegram_Mailer_Common::get_utm_tracking_url( [
-				'url' => 'https://www.icegram.com/email-sending-service/#pricing',
+				'url' => 'https://www.icegram.com/mailer/#pricing',
 				'utm_medium' => 'icegram-mailer'
 			]
 		);
 
 		$learn_more_url = Icegram_Mailer_Common::get_utm_tracking_url( [
-				'url' => 'https://www.icegram.com/email-sending-service/',
+				'url' => 'https://www.icegram.com/mailer/',
 				'utm_medium' => 'icegram-mailer'
 			]
 		);

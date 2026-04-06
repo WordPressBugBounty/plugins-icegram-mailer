@@ -36,6 +36,10 @@ class Icegram_Mailer_Deactivator {
 	 */
 	public static function deactivate() {
 
+		// Unschedule notification cron jobs
+		if ( class_exists( 'Icegram_Mailer_Notifications' ) ) {
+			Icegram_Mailer_Notifications::unschedule_cron_jobs();
+		}
 	}
 
 }

@@ -67,6 +67,17 @@ if ( ! class_exists( 'Icegram_Mailer_Settings_Controller' ) ) {
 			$settings = self::get_settings();
 
 			$settings['is_open_tracking_enabled'] = isset( $new_settings['is_open_tracking_enabled'] ) ? $new_settings['is_open_tracking_enabled'] : 'no';
+		    			
+		    // Update branding option separately
+		    // For free plan users, branding is always kept enabled
+			$is_free_plan = Icegram_Mailer_Common::is_free_plan_by_limit();
+
+			if ( $is_free_plan ) {
+				update_option( 'icegram_mailer_branding_enabled', 'yes', false );
+			} else {
+				$branding_enabled = isset( $new_settings['branding_enabled'] ) ? 'yes' : 'no';
+				update_option( 'icegram_mailer_branding_enabled', $branding_enabled, false );
+			}
 
 			update_option( self::$settings_option_name, $settings );
 
@@ -89,7 +100,16 @@ if ( ! class_exists( 'Icegram_Mailer_Settings_Controller' ) ) {
 			$from_email_user_name     = ! empty( $from_email ) ? icegram_mailer_get_user_name_from_email( $from_email ) : '';
 			$dashboard_url            = admin_url( 'admin.php?page=icegram_mailer_dashboard' );
 			$test_email               = get_option( 'admin_email' );
-	
+			$current_user 			  = wp_get_current_user();
+			$test_email   			  = ! empty( $current_user->user_email ) ? $current_user->user_email : get_option( 'admin_email' );
+			$is_free_plan             = Icegram_Mailer_Common::is_free_plan_by_limit();
+			
+			if ( $is_free_plan ) {
+				$branding_enabled = 'yes';
+			} else {
+				$branding_enabled = get_option( 'icegram_mailer_branding_enabled', 'yes' );
+			}
+
 			return [
 			'is_opted_for_ess'         => $is_opted_for_ess,
 			'from_name'                => $from_name,
@@ -97,6 +117,8 @@ if ( ! class_exists( 'Icegram_Mailer_Settings_Controller' ) ) {
 			'is_open_tracking_enabled' => $is_open_tracking_enabled,
 			'dashboard_url'            => $dashboard_url,
 			'test_email'               => $test_email,
+			'is_free_plan'             => $is_free_plan,
+			'branding_enabled'         => $branding_enabled,
 			];
 		}
 

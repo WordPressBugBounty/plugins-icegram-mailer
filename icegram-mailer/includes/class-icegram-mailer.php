@@ -171,6 +171,7 @@ class Icegram_Mailer {
 			'/admin/class-icegram-mailer-settings.php',
 			'/admin/class-icegram-mailer-admin-notice.php',
 			'/admin/notices/class-icegram-mailer-plugin-review-notice.php',
+			'/includes/class-icegram-mailer-notifications.php',
 		];
 
 		foreach ( $files_to_load as $file ) {
