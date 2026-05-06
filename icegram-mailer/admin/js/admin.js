@@ -366,12 +366,13 @@ jQuery(document).ready(function($) {
     });
 
     // Show success/error messages after bulk resend
-    if (window.location.search.indexOf('resent=') > -1) {
+    if (window.location.search.indexOf('resent=') > -1 || window.location.search.indexOf('deleted=') > -1) {
         var urlParams = new URLSearchParams(window.location.search);
-        var resentCount = urlParams.get('resent');
-        var failedCount = urlParams.get('failed');
-        
-        var message = '';
+        var resentCount = parseInt(urlParams.get('resent')) || 0;
+        var failedCount = parseInt(urlParams.get('failed')) || 0;
+        var deletedCount = parseInt(urlParams.get('deleted')) || 0;
+
+        var message = '';        
         if (resentCount > 0) {
             message += resentCount + ' ' + __('email(s) resent successfully.', 'icegram-mailer');
         }
@@ -379,9 +380,13 @@ jQuery(document).ready(function($) {
             if (message) message += ' ';
             message += failedCount + ' ' + __('email(s) failed to resend.', 'icegram-mailer');
         }
+        if (deletedCount > 0) {
+            if (message) message += ' ';
+            message += deletedCount + ' ' + __('email(s) deleted successfully.', 'icegram-mailer');
+        }
         
         if (message) {
-            var noticeClass = failedCount > 0 ? 'notice-warning' : 'notice-success';
+            var noticeClass = (failedCount > 0) ? 'notice-warning' : 'notice-success';
             jQuery('<div class="notice ' + noticeClass + ' is-dismissible"><p>' + message + '</p></div>')
                 .insertAfter('.wp-header-end')
                 .delay(5000)
@@ -389,7 +394,137 @@ jQuery(document).ready(function($) {
         }
         
         // Clean URL
-        var cleanUrl = window.location.pathname + '?page=icegram_mailer_dashboard';
-        window.history.replaceState({}, document.title, cleanUrl);
+        var cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.delete('resent');
+        cleanUrl.searchParams.delete('failed');
+        cleanUrl.searchParams.delete('deleted');
+        window.history.replaceState({}, document.title, cleanUrl.toString());
+    }
+
+    // Handle delete email action
+    jQuery(document).on('click', '.icegram-mailer-delete-email', function(e) {
+        e.preventDefault();
+        
+        var emailId = jQuery(this).data('email-id');
+        var row = jQuery(this).closest('tr');
+
+        // Get the email status from the row before deletion
+        var statusCell = row.find('.icegram-mailer-email-sent, .icegram-mailer-email-failed');
+        var emailStatus = '';
+        if (statusCell.hasClass('icegram-mailer-email-sent')) {
+            emailStatus = 'sent';
+        } else if (statusCell.hasClass('icegram-mailer-email-failed')) {
+            emailStatus = 'failed';
+        }
+        
+        // Show custom confirmation modal
+        showIcegramModal(
+            __('Confirm Delete', 'icegram-mailer'),
+            __('Are you sure you want to delete this email log?', 'icegram-mailer'),
+            'confirm',
+            [
+                {
+                    text: __('Cancel', 'icegram-mailer'),
+                    class: 'icegram-mailer-modal-btn-secondary',
+                    action: null
+                },
+                {
+                    text: __('Delete', 'icegram-mailer'),
+                    class: 'icegram-mailer-modal-btn-primary',
+                    action: function() {
+                        // Show loading modal
+                        showLoadingModal(__('Deleting Email...', 'icegram-mailer'));
+                        
+                        jQuery.ajax({
+                            type: 'POST',
+                            url: ajaxurl,
+                            data: {
+                                action: 'icegram-mailer',
+                                handler: 'dashboard',
+                                method: 'delete_email',
+                                security: icegram_mailer_admin_js_data._wpnonce,
+                                data: {
+                                    email_id: emailId
+                                }
+                            },
+                            dataType: 'json',
+                            success: function(response) {
+                                hideLoadingModal();
+                                if (response && response.status === 'success') {
+                                    // Close modal and remove row
+                                    closeIcegramModal();
+                                    
+                                    // Remove the row with animation
+                                    row.fadeOut(400, function() {
+                                        row.remove();
+
+                                        // Update filter counts
+                                        updateFilterCounts(emailStatus); 
+                                        
+                                        // Check if any data rows remain
+                                        var remainingRows = jQuery('#the-list tr').length;
+                                        if (remainingRows === 0) {
+                                            location.reload();
+                                        }
+                                    });
+                                } else {
+                                    showIcegramModal(
+                                        __('Error', 'icegram-mailer'),
+                                        (response.message || __('Unknown error occurred', 'icegram-mailer')),
+                                        'error',
+                                        [
+                                            {
+                                                text: __('OK', 'icegram-mailer'),
+                                                class: 'icegram-mailer-modal-btn-primary',
+                                                action: null
+                                            }
+                                        ]
+                                    );
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                hideLoadingModal();
+                                showIcegramModal(
+                                    __('Error', 'icegram-mailer'),
+                                    __('An error occurred. Please try again.', 'icegram-mailer'),
+                                    'error',
+                                    [
+                                        {
+                                            text: __('OK', 'icegram-mailer'),
+                                            class: 'icegram-mailer-modal-btn-primary',
+                                            action: null
+                                        }
+                                    ]
+                                );
+                            }
+                        });
+                    }
+                }
+            ]
+        );
+    });    
+
+
+    // Helper function to update filter counts after deletion
+    function updateFilterCounts(emailStatus) {
+        // Update "All" count
+        var allCountElement = jQuery('.subsubsub a[href*="icegram_mailer_dashboard"]:not([href*="status="]) .count');
+        if (allCountElement.length > 0) {
+            var currentCount = parseInt(allCountElement.text().replace(/[()]/g, ''));
+            if (currentCount > 0) {
+                allCountElement.text('(' + (currentCount - 1) + ')');
+            }
+        }
+        
+        // Update status-specific count (Sent or Failed)
+        if (emailStatus === 'sent' || emailStatus === 'failed') {
+            var statusCountElement = jQuery('.subsubsub a[href*="status=' + emailStatus + '"] .count');
+            if (statusCountElement.length > 0) {
+                var currentStatusCount = parseInt(statusCountElement.text().replace(/[()]/g, ''));
+                if (currentStatusCount > 0) {
+                    statusCountElement.text('(' + (currentStatusCount - 1) + ')');
+                }
+            }
+        }
     }
 });

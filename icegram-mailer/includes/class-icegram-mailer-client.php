@@ -63,12 +63,16 @@ if ( ! class_exists( 'Icegram_Mailer_Client' ) ) {
 			
 
 			$ess_data = Icegram_Mailer_Account::get_ess_data();
+			$settings = Icegram_Mailer_Settings_Controller::get_settings();
 
 			$message  = new Icegram_Mailer_Message();
 
 			$from_email       = ! empty( $ess_data['from_email'] ) ? $ess_data['from_email'] : '';
 			$from_name        = ! empty( $ess_data['from_name'] ) ? $ess_data['from_name'] : get_bloginfo( 'name' );
-			$reply_to_email   = get_option( 'admin_email' );
+			
+			$reply_to_name  = ! empty( $settings['reply_to_name'] ) ? $settings['reply_to_name'] : '';
+			$reply_to_email = ! empty( $settings['reply_to_email'] ) ? $settings['reply_to_email'] : get_option( 'admin_email' );			
+
 			$headers          = ! empty( $email['headers'] ) ? $email['headers'] : [];
 			$message_reply_to = $this->extract_reply_to_from_email_headers( $headers );
 
@@ -79,9 +83,9 @@ if ( ! class_exists( 'Icegram_Mailer_Client' ) ) {
 			$message->body           = $email['message'];
 			$message->attachments    = ! empty( $email['attachments'] ) ? $email['attachments'] : [];
 			$message->headers        = $headers;
-			$message->reply_to_email = ! empty( $message_reply_to['email'] ) ? $message_reply_to['email'] : $reply_to_email;
-			$message->reply_to_name  = ! empty( $message_reply_to['email'] ) && ! empty( $message_reply_to['name'] ) ? $message_reply_to['name'] : '';
-
+			$message->reply_to_name  = ! empty( $message_reply_to['name'] ) ? $message_reply_to['name'] : $reply_to_name;
+			$message->reply_to_email = ! empty( $message_reply_to['email'] ) ? $message_reply_to['email'] : $reply_to_email;						
+			
 			if ( $this->is_open_tracking_enabled() ) {
 
 				$tracking_id = wp_generate_uuid4();

@@ -107,9 +107,22 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 				<div id="post-body" class="metabox-holder column-1">
 					<div id="post-body-content">
 						<div class="meta-box-sortables ui-sortable">
-							<form method="post">
+ 							<form id="email-logs-form" method="get">
+								<input type="hidden" name="page" value="icegram_mailer_dashboard" />
+								
 								<?php
-								// Display search field and other available filter fields.
+								// Preserve current status filter
+								$current_status = $this->get_current_status();
+								if ( ! empty( $current_status ) ) {
+									echo '<input type="hidden" name="status" value="' . esc_attr( $current_status ) . '" />';
+								}
+								?>
+
+								<!-- Display views (All, Sent, Failed) -->
+								<?php $this->views(); ?>						
+							
+								<!-- Prepare and display table with bulk actions -->
+								<?php
 								$this->prepare_items();
 								$this->display();
 								?>
@@ -137,6 +150,18 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 			'do_count_only' => $do_count_only
 		);
 
+		// Add status filter if present
+		$current_status = $this->get_current_status();
+		if ( ! empty( $current_status ) ) {
+			$args['status'] = $current_status;
+		}
+
+		// Add search filter if present
+		$search = isset( $_REQUEST['s'] ) ? trim( sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) ) : '';
+		if ( ! empty( $search ) ) {
+			$args['search'] = $search;
+		}
+		
 		return Icegram_Mailer_Dashboard_Controller::get_lists( $args );
 		
 	}
@@ -215,6 +240,12 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 			__( 'Resend', 'icegram-mailer' )
 		);
 
+		$actions['delete'] = sprintf(
+			'<a href="#" class="icegram-mailer-delete-email" data-email-id="%d">%s</a>',
+			$item['id'],
+			__( 'Delete', 'icegram-mailer' )
+		);
+
 		return sprintf( '%1$s %2$s', $subject, $this->row_actions( $actions ) );
 	}
 
@@ -250,6 +281,7 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 
 		$per_page     = $this->get_items_per_page( self::$option_per_page, 20 );
 		$current_page = $this->get_pagenum();
+ 
 		$total_items  = $this->get_lists( 0, 0, true );
 
 		$this->set_pagination_args(
@@ -259,9 +291,7 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 			)
 		);
 
-		$contacts = $this->get_lists( $per_page, $current_page );
-
-		$this->items = $contacts;
+		$this->items = $this->get_lists( $per_page, $current_page );
 	}
 
 	/**
@@ -274,7 +304,35 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 	protected function get_bulk_actions() {
 		return array(
 			'bulk_resend' => __( 'Resend', 'icegram-mailer' ),
+			'bulk_delete' => __( 'Delete', 'icegram-mailer' ),
 		);
+	}
+
+	/**
+	 * Get filters to preserve in redirects
+	 *
+	 * @return array Filters to preserve
+	 * @since 1.0.8
+	 */
+	protected function get_preserved_query_vars() {
+		$filters = array();
+		
+		// Preserve status filter if set
+		if ( ! empty( $_GET['status'] ) ) {
+			$filters['status'] = sanitize_text_field( wp_unslash( $_GET['status'] ) );
+		}
+		
+		// Preserve search query if not empty
+		if ( ! empty( $_GET['s'] ) ) {
+			$filters['s'] = sanitize_text_field( wp_unslash( $_GET['s'] ) );
+		}
+		
+		// Preserve pagination if set
+		if ( ! empty( $_GET['paged'] ) ) {
+			$filters['paged'] = absint( $_GET['paged'] );
+		}
+		
+		return $filters;
 	}
 
 	/**
@@ -289,6 +347,11 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 			// Check nonce.
 			if ( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ), 'bulk-' . $this->_args['plural'] ) ) {
 				wp_die( esc_html__( 'Security check failed', 'icegram-mailer' ) );
+			}
+
+			// Check user permission
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( esc_html__( 'You do not have permission to delete email logs.', 'icegram-mailer' ) );
 			}
 
 			$email_ids = isset( $_REQUEST['email_ids'] ) ? array_map( 'absint', $_REQUEST['email_ids'] ) : array();
@@ -306,18 +369,167 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 					}
 				}
 
-				$redirect_url = remove_query_arg( array( 'action', 'action2', 'email_ids', '_wpnonce', '_wp_http_referer' ) );
-				$redirect_url = add_query_arg(
+				$redirect_url = remove_query_arg( array( 'action', 'action2', 'email_ids', '_wpnonce', '_wp_http_referer', 'bulk_action', 's', 'status', 'paged' ) );
+                
+				$redirect_args = array_merge(
 					array(
 						'resent' => $resent_count,
 						'failed' => $failed_count,
 					),
-					$redirect_url
+					$this->get_preserved_query_vars()
 				);
+
+                
+                $redirect_url = add_query_arg( $redirect_args, $redirect_url );
 
 				wp_safe_redirect( $redirect_url );
 				exit;
 			}
 		}
+
+		if ( 'bulk_delete' === $action ) {
+			
+			// Check nonce.
+			if ( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ), 'bulk-' . $this->_args['plural'] ) ) {
+				wp_die( esc_html__( 'Security check failed', 'icegram-mailer' ) );
+			}
+
+			// Check user permission
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( esc_html__( 'You do not have permission to delete email logs.', 'icegram-mailer' ) );
+			}
+
+			$email_ids = isset( $_REQUEST['email_ids'] ) ? array_map( 'absint', $_REQUEST['email_ids'] ) : array();
+
+			if ( ! empty( $email_ids ) ) {
+				$deleted_count = 0;
+
+				foreach ( $email_ids as $email_id ) {
+					$deleted = icegram_mailer()->email_logs_table->delete( $email_id );
+					if ( $deleted ) {
+						$deleted_count++;
+					}
+				}
+
+				// Remove all bulk action related parameters
+                $redirect_url = remove_query_arg( array( 'action', 'action2', 'email_ids', '_wpnonce', '_wp_http_referer', 'bulk_action', 's', 'status', 'paged' ) );
+
+				$redirect_args = array_merge(
+					array( 'deleted' => $deleted_count ),
+					$this->get_preserved_query_vars()
+				);
+                
+                $redirect_url = add_query_arg( $redirect_args, $redirect_url );
+
+				wp_safe_redirect( $redirect_url );
+				exit;
+			}
+		} 
+
+	}
+
+
+	/**
+	 * Get current status from URL parameter
+	 *
+	 * @return string Current status or empty for all
+	 * @since 1.0.8
+	 */
+	protected function get_current_status() {
+		$status = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : '';
+		$valid_statuses = array( 'sent', 'failed' );
+		
+		return in_array( $status, $valid_statuses, true ) ? $status : '';
+	}
+
+
+	/**
+	 * Get available views/filters for the list table
+	 *
+	 * @return array Array of view links
+	 * @since 1.0.8
+	 */
+	public function get_views() {
+		$current_status = $this->get_current_status();
+		$base_url = admin_url( 'admin.php?page=icegram_mailer_dashboard' );
+		
+		// Get counts for each status
+		$total_count = icegram_mailer()->email_logs_table->get_logs( array(), ARRAY_A, true );
+
+		$sent_count = icegram_mailer()->email_logs_table->get_logs( array( 'status' => 'sent' ), ARRAY_A, true );
+		
+		$failed_count = icegram_mailer()->email_logs_table->get_logs( array( 'status' => 'failed' ), ARRAY_A, true );
+		
+		$views = array();
+		
+		// All emails
+		$views['all'] = sprintf(
+			'<a href="%s" class="%s">%s <span class="count">(%d)</span></a>',
+			$base_url,
+			empty( $current_status ) ? 'current' : '',
+			__( 'All', 'icegram-mailer' ),
+			$total_count
+		);
+		
+		// Sent emails
+		$views['sent'] = sprintf(
+			'<a href="%s" class="%s">%s <span class="count">(%d)</span></a>',
+			add_query_arg( 'status', 'sent', $base_url ),
+			'sent' === $current_status ? 'current' : '',
+			__( 'Sent', 'icegram-mailer' ),
+			$sent_count
+		);
+		
+		// Failed emails
+		$views['failed'] = sprintf(
+			'<a href="%s" class="%s">%s <span class="count">(%d)</span></a>',
+			add_query_arg( 'status', 'failed', $base_url ),
+			'failed' === $current_status ? 'current' : '',
+			__( 'Failed', 'icegram-mailer' ),
+			$failed_count
+		);
+		
+		return $views;
+	}
+
+	/**
+	 * Display search box
+	 *
+	 * @param string $text The 'submit' button label.
+	 * @param string $input_id ID attribute value for the search input field.
+	 *
+	 * @since 1.0.8
+	 */
+	public function search_box( $text = '', $input_id = 'search' ) {
+		if ( empty( $text ) ) {
+			$text = __( 'Search Logs', 'icegram-mailer' );
+		}
+
+		$input_id = $input_id . '-search-input';
+
+		if ( ! empty( $_REQUEST['orderby'] ) ) {
+			echo '<input type="hidden" name="orderby" value="' . esc_attr( $_REQUEST['orderby'] ) . '" />';
+		}
+		if ( ! empty( $_REQUEST['order'] ) ) {
+			echo '<input type="hidden" name="order" value="' . esc_attr( $_REQUEST['order'] ) . '" />';
+		}
+		?>
+		<p class="search-box">
+			<label class="screen-reader-text" for="<?php echo esc_attr( $input_id ); ?>"><?php echo esc_html( $text ); ?>:</label>
+			<input type="search" id="<?php echo esc_attr( $input_id ); ?>" name="s" value="<?php _admin_search_query(); ?>" placeholder="<?php esc_attr_e( 'Search email or subject...', 'icegram-mailer' ); ?>" />
+			<?php submit_button( $text, '', '', false, array( 'id' => 'search-submit' ) ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Display the list table with views/filters above
+	 *
+	 * @since 1.0.8
+	 */
+	public function display() { 
+		
+		// Display the standard table
+		parent::display();
 	}
 }

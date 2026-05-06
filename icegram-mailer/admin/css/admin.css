@@ -221,3 +221,16 @@ input.icegram-mailer-input[type="email"] {
     opacity: 0.5;
     cursor: not-allowed;
 }
+.icegram-mailer-email-log-list .tablenav.top {
+    height: unset;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.icegram-mailer-email-log-list .search-box { 
+    margin: 0 !important; 
+}
+
+.icegram-mailer-email-log-list #bulk-action-selector-bottom{
+    min-width: 120px;
+}

@@ -67,7 +67,16 @@ if ( ! class_exists( 'Icegram_Mailer_Settings_Controller' ) ) {
 			$settings = self::get_settings();
 
 			$settings['is_open_tracking_enabled'] = isset( $new_settings['is_open_tracking_enabled'] ) ? $new_settings['is_open_tracking_enabled'] : 'no';
-		    			
+		   	
+			$settings['reply_to_name']  = isset( $new_settings['reply-to-name'] ) ? sanitize_text_field( $new_settings['reply-to-name'] ) : '';
+			
+			$reply_to_email_input = isset( $new_settings['reply-to-email'] ) ? sanitize_email( $new_settings['reply-to-email'] ) : '';
+			if ( ! empty( $reply_to_email_input ) && is_email( $reply_to_email_input ) ) {
+				$settings['reply_to_email'] = $reply_to_email_input;
+			} else {
+				$settings['reply_to_email'] = ''; 
+			}
+
 		    // Update branding option separately
 		    // For free plan users, branding is always kept enabled
 			$is_free_plan = Icegram_Mailer_Common::is_free_plan_by_limit();
@@ -103,7 +112,9 @@ if ( ! class_exists( 'Icegram_Mailer_Settings_Controller' ) ) {
 			$current_user 			  = wp_get_current_user();
 			$test_email   			  = ! empty( $current_user->user_email ) ? $current_user->user_email : get_option( 'admin_email' );
 			$is_free_plan             = Icegram_Mailer_Common::is_free_plan_by_limit();
-			
+			$reply_to_name            = ! empty( $settings['reply_to_name'] ) ? $settings['reply_to_name'] : '';
+    		$reply_to_email           = ! empty( $settings['reply_to_email'] ) ? $settings['reply_to_email'] : '';
+    
 			if ( $is_free_plan ) {
 				$branding_enabled = 'yes';
 			} else {
@@ -119,6 +130,8 @@ if ( ! class_exists( 'Icegram_Mailer_Settings_Controller' ) ) {
 			'test_email'               => $test_email,
 			'is_free_plan'             => $is_free_plan,
 			'branding_enabled'         => $branding_enabled,
+			'reply_to_name'            => $reply_to_name,
+        	'reply_to_email'           => $reply_to_email,        
 			];
 		}
 

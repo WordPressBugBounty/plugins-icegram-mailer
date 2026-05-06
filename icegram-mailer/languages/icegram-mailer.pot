@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: Icegram Mailer 1.0.10\n"
+"Project-Id-Version: Icegram Mailer 1.0.11\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/icegram-mailer\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-04-03T09:48:31+00:00\n"
+"POT-Creation-Date: 2026-04-23T07:38:21+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: icegram-mailer\n"
@@ -67,42 +67,75 @@ msgstr ""
 msgid "Number of email logs per page"
 msgstr ""
 
-#: admin/class-icegram-mailer-email-list-table.php:151
+#: admin/class-icegram-mailer-email-list-table.php:176
 msgid "No email logs available."
 msgstr ""
 
-#: admin/class-icegram-mailer-email-list-table.php:207
+#: admin/class-icegram-mailer-email-list-table.php:232
 msgid "(no subject)"
 msgstr ""
 
-#: admin/class-icegram-mailer-email-list-table.php:215
-#: admin/class-icegram-mailer-email-list-table.php:276
+#: admin/class-icegram-mailer-email-list-table.php:240
+#: admin/class-icegram-mailer-email-list-table.php:306
 msgid "Resend"
 msgstr ""
 
-#: admin/class-icegram-mailer-email-list-table.php:232
+#: admin/class-icegram-mailer-email-list-table.php:246
+#: admin/class-icegram-mailer-email-list-table.php:307
+#: admin/js/admin.js:432
+msgid "Delete"
+msgstr ""
+
+#: admin/class-icegram-mailer-email-list-table.php:263
 msgid "Subject"
 msgstr ""
 
-#: admin/class-icegram-mailer-email-list-table.php:233
+#: admin/class-icegram-mailer-email-list-table.php:264
 msgid "To"
 msgstr ""
 
-#: admin/class-icegram-mailer-email-list-table.php:234
+#: admin/class-icegram-mailer-email-list-table.php:265
 #: admin/templates/other-icegram-plugins.php:105
 msgid "Status"
 msgstr ""
 
-#: admin/class-icegram-mailer-email-list-table.php:235
+#: admin/class-icegram-mailer-email-list-table.php:266
 msgid "Sent at"
 msgstr ""
 
-#: admin/class-icegram-mailer-email-list-table.php:236
+#: admin/class-icegram-mailer-email-list-table.php:267
 msgid "Opened at"
 msgstr ""
 
-#: admin/class-icegram-mailer-email-list-table.php:291
+#: admin/class-icegram-mailer-email-list-table.php:349
+#: admin/class-icegram-mailer-email-list-table.php:394
 msgid "Security check failed"
+msgstr ""
+
+#: admin/class-icegram-mailer-email-list-table.php:354
+#: admin/class-icegram-mailer-email-list-table.php:399
+msgid "You do not have permission to delete email logs."
+msgstr ""
+
+#: admin/class-icegram-mailer-email-list-table.php:470
+msgid "All"
+msgstr ""
+
+#: admin/class-icegram-mailer-email-list-table.php:479
+msgid "Sent"
+msgstr ""
+
+#: admin/class-icegram-mailer-email-list-table.php:488
+msgid "Failed"
+msgstr ""
+
+#: admin/class-icegram-mailer-email-list-table.php:505
+#: admin/class-icegram-mailer-list-table.php:34
+msgid "Search Logs"
+msgstr ""
+
+#: admin/class-icegram-mailer-email-list-table.php:519
+msgid "Search email or subject..."
 msgstr ""
 
 #: admin/class-icegram-mailer-settings.php:23
@@ -268,51 +301,73 @@ msgid "Sender"
 msgstr ""
 
 #: admin/partials/settings.php:55
-msgid "The \"From name\" and \"From email\" people will see when they receive emails."
+msgid "The \"From name\", \"From email\", \"Reply-To name\" and \"Reply-To email\" people will see when they receive emails."
 msgstr ""
 
-#: admin/partials/settings.php:61
+#: admin/partials/settings.php:63
 msgid "From name"
 msgstr ""
 
-#: admin/partials/settings.php:66
+#: admin/partials/settings.php:65
+#: admin/partials/settings.php:87
+msgid "Name"
+msgstr ""
+
+#: admin/partials/settings.php:70
 msgid "From email"
 msgstr ""
 
+#: admin/partials/settings.php:73
+#: admin/partials/settings.php:98
+msgid "Email"
+msgstr ""
+
 #: admin/partials/settings.php:81
+msgid "Reply-To Name"
+msgstr ""
+
+#: admin/partials/settings.php:91
+msgid "Reply-To Email"
+msgstr ""
+
+#: admin/partials/settings.php:110
 msgid "Open tracking"
 msgstr ""
 
-#: admin/partials/settings.php:84
+#: admin/partials/settings.php:113
 msgid "Do you want to track opens when people view your emails?"
 msgstr ""
 
-#: admin/partials/settings.php:99
+#: admin/partials/settings.php:128
 msgid "Show \"Sent by Icegram\""
 msgstr ""
 
-#: admin/partials/settings.php:101
-#: admin/partials/settings.php:102
+#: admin/partials/settings.php:130
+#: admin/partials/settings.php:131
 msgid "Upgrade to Premium"
 msgstr ""
 
-#: admin/partials/settings.php:107
+#: admin/partials/settings.php:136
 msgid "Include \"Sent by Icegram\" link in the footer of your emails."
 msgstr ""
 
-#: admin/partials/settings.php:122
+#: admin/partials/settings.php:151
 msgid "Email testing"
 msgstr ""
 
-#: admin/partials/settings.php:125
+#: admin/partials/settings.php:154
 msgid "Enter email address to test your configuration."
 msgstr ""
 
-#: admin/partials/settings.php:135
+#: admin/partials/settings.php:159
+msgid "Enter email"
+msgstr ""
+
+#: admin/partials/settings.php:164
 msgid "Send email"
 msgstr ""
 
-#: admin/partials/settings.php:153
+#: admin/partials/settings.php:182
 msgid "Save"
 msgstr ""
 
@@ -549,21 +604,21 @@ msgid "Learn more"
 msgstr ""
 
 #. translators: %s. Email address
-#: includes/class-icegram-mailer-client.php:220
+#: includes/class-icegram-mailer-client.php:224
 #, php-format
 msgid "Test email to %s"
 msgstr ""
 
-#: includes/class-icegram-mailer-client.php:243
+#: includes/class-icegram-mailer-client.php:247
 msgid "Congrats, test email was sent successfully!"
 msgstr ""
 
-#: includes/class-icegram-mailer-client.php:244
+#: includes/class-icegram-mailer-client.php:248
 msgid "Thank you for trying out Icegram Mailer. We are on a mission to make the best Email delivery plugin for WordPress."
 msgstr ""
 
 #. translators: 1: <a> 2: </a>
-#: includes/class-icegram-mailer-client.php:248
+#: includes/class-icegram-mailer-client.php:252
 #, php-format
 msgid "If you find this plugin useful, please consider giving us %1$s5 stars review%2$s on WordPress!"
 msgstr ""
@@ -642,6 +697,7 @@ msgid "Unable to resend email."
 msgstr ""
 
 #: includes/controllers/class-icegram-mailer-dashboard-controller.php:46
+#: includes/controllers/class-icegram-mailer-dashboard-controller.php:268
 msgid "Invalid email ID."
 msgstr ""
 
@@ -673,6 +729,18 @@ msgstr ""
 
 #: includes/controllers/class-icegram-mailer-dashboard-controller.php:231
 msgid "Account statistics synced successfully!"
+msgstr ""
+
+#: includes/controllers/class-icegram-mailer-dashboard-controller.php:262
+msgid "Unable to delete email."
+msgstr ""
+
+#: includes/controllers/class-icegram-mailer-dashboard-controller.php:277
+msgid "Email deleted successfully!"
+msgstr ""
+
+#: includes/controllers/class-icegram-mailer-dashboard-controller.php:279
+msgid "Email not found or could not be deleted."
 msgstr ""
 
 #: includes/controllers/class-icegram-mailer-settings-controller.php:30
@@ -870,6 +938,7 @@ msgid "Are you sure you want to resend this email?"
 msgstr ""
 
 #: admin/js/admin.js:207
+#: admin/js/admin.js:427
 msgid "Cancel"
 msgstr ""
 
@@ -877,6 +946,8 @@ msgstr ""
 #: admin/js/admin.js:240
 #: admin/js/admin.js:255
 #: admin/js/admin.js:271
+#: admin/js/admin.js:477
+#: admin/js/admin.js:493
 msgid "OK"
 msgstr ""
 
@@ -890,14 +961,18 @@ msgstr ""
 
 #: admin/js/admin.js:250
 #: admin/js/admin.js:266
+#: admin/js/admin.js:472
+#: admin/js/admin.js:488
 msgid "Error"
 msgstr ""
 
 #: admin/js/admin.js:251
+#: admin/js/admin.js:473
 msgid "Unknown error occurred"
 msgstr ""
 
 #: admin/js/admin.js:267
+#: admin/js/admin.js:489
 msgid "An error occurred. Please try again."
 msgstr ""
 
@@ -917,12 +992,28 @@ msgstr ""
 msgid "An error occurred while refreshing. Please try again."
 msgstr ""
 
-#: admin/js/admin.js:376
+#: admin/js/admin.js:377
 msgid "email(s) resent successfully."
 msgstr ""
 
-#: admin/js/admin.js:380
+#: admin/js/admin.js:381
 msgid "email(s) failed to resend."
+msgstr ""
+
+#: admin/js/admin.js:385
+msgid "email(s) deleted successfully."
+msgstr ""
+
+#: admin/js/admin.js:422
+msgid "Confirm Delete"
+msgstr ""
+
+#: admin/js/admin.js:423
+msgid "Are you sure you want to delete this email log?"
+msgstr ""
+
+#: admin/js/admin.js:436
+msgid "Deleting Email..."
 msgstr ""
 
 #: admin/js/ess-onboarding.js:220

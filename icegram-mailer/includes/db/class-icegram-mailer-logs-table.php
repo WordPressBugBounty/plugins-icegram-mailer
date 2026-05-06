@@ -132,6 +132,13 @@ class Icegram_Mailer_Logs_Table extends Icegram_Mailer_Base_Table {
 			$args[]  = esc_sql( $query_args['opened_within_days'] );
 		}
 
+		if ( ! empty( $query_args['search'] ) ) {
+			$search_term = '%' . $wpdb->esc_like( $query_args['search'] ) . '%';
+			$query[] = '(`to` LIKE %s OR subject LIKE %s)';
+			$args[]  = $search_term;
+			$args[]  = $search_term;
+		}
+
 		if ( count( $query ) > 0 ) {
 			$sql .= ' WHERE ';
 
@@ -200,4 +207,27 @@ class Icegram_Mailer_Logs_Table extends Icegram_Mailer_Base_Table {
 		return $wpdb->get_row( $sql, ARRAY_A );
 	}
 
+	/**
+	 * Delete email log by ID
+	 *
+	 * @param int $id Email log ID.
+	 * @return bool True on success, false on failure.
+	 * @since 1.0.8
+	 */
+	public function delete( $id ) {
+		global $wpdb;
+
+		$id = absint( $id );
+		if ( empty( $id ) ) {
+			return false;
+		}
+
+		$result = $wpdb->delete(
+			$this->table_name,
+			array( 'id' => $id ),
+			array( '%d' )
+		);
+
+		return (bool) $result;
+	}
 }

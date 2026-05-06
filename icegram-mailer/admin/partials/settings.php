@@ -52,22 +52,51 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<?php echo esc_html__( 'Sender', 'icegram-mailer' ); ?>
 							</label>
 							<p class="help-text">
-								<?php echo esc_html__( 'The "From name" and "From email" people will see when they receive emails.', 'icegram-mailer' ); ?>
+								<?php echo esc_html__( 'The "From name", "From email", "Reply-To name" and "Reply-To email" people will see when they receive emails.', 'icegram-mailer' ); ?>
 							</p>
 						</div>
 					</div>
-					<div class="w-2/3">
-						<label class="block text-xs font-medium">
-							<?php echo esc_html__( 'From name', 'icegram-mailer' ); ?>
-						</label>
-						<input type="text" name="icegram-mailer-settings[from-name]" class="icegram-mailer-input w-full p-2 border rounded mt-1" value="<?php echo esc_attr( $from_name ); ?>">
+					<div class="w-2/3">  
+						<div class="flex gap-2 mt-1">
+							<div class="w-1/2">
+								<label class="block text-xs font-medium">
+									<?php echo esc_html__( 'From name', 'icegram-mailer' ); ?>
+								</label>
+								<input type="text" name="icegram-mailer-settings[from-name]" class="icegram-mailer-input w-full p-2 border rounded mt-1" value="<?php echo esc_attr( $from_name ); ?>" placeholder="<?php echo esc_attr__( 'Name', 'icegram-mailer' ); ?>">
+								
+							</div>
+							<div class="w-1/2">
+								<label class="block text-xs font-medium">
+									<?php echo esc_html__( 'From email', 'icegram-mailer' ); ?>
+								</label>
+								<div class="flex items-center">
+									<input type="text" readonly name="icegram-mailer-settings[from-email-user-name]" class="icegram-mailer-input w-full p-2 border rounded-l mt-1" value="<?php echo esc_attr( $from_email_user_name ); ?>@igeml.com" placeholder="<?php echo esc_attr__( 'Email', 'icegram-mailer' ); ?>">									
+								</div>
+							</div>
+						</div> 
 						
-						<label class="block text-xs font-medium mt-2">
-							<?php echo esc_html__( 'From email', 'icegram-mailer' ); ?>
-						</label>
-						<div class="flex items-center">
-							<input type="text" readonly name="icegram-mailer-settings[from-email-user-name]" class="icegram-mailer-input w-full p-2 border rounded-l mt-1" value="<?php echo esc_attr( $from_email_user_name ); ?>">
-							<span class="p-2">@igeml.com</span>
+						<div class="flex gap-2 mt-1">
+							<div class="w-1/2">
+								<label class="block text-xs font-medium mt-2">
+									<?php echo esc_html__( 'Reply-To Name', 'icegram-mailer' ); ?>
+								</label>
+								<input type="text" 
+									name="icegram-mailer-settings[reply-to-name]" 
+									class="icegram-mailer-input w-full p-2 border rounded" 
+									value="<?php echo esc_attr( $reply_to_name ); ?>"
+									placeholder="<?php echo esc_attr__( 'Name', 'icegram-mailer' ); ?>">
+							</div>
+							<div class="w-1/2">
+								<label class="block text-xs font-medium mt-2">
+									<?php echo esc_html__( 'Reply-To Email', 'icegram-mailer' ); ?>
+								</label>
+
+								<input type="email" 
+									name="icegram-mailer-settings[reply-to-email]" 
+									class="icegram-mailer-input w-full p-2 border rounded" 
+									value="<?php echo esc_attr( $reply_to_email ); ?>"
+									placeholder="<?php echo esc_attr__( 'Email', 'icegram-mailer' ); ?>">
+							</div>
 						</div>
 					</div>
 				</div>
@@ -127,7 +156,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						</div>
 					</div>
 					<div class="w-2/3">
-						<input id="icegram-mailer-test-email" type="text" class="icegram-mailer-input w-full p-2 border rounded mt-2" placeholder="Enter email" value="<?php echo esc_attr( $test_email ); ?>">
+						<input id="icegram-mailer-test-email" type="text" class="icegram-mailer-input w-full p-2 border rounded mt-2" placeholder="<?php echo esc_attr__( 'Enter email', 'icegram-mailer' ); ?>" value="<?php echo esc_attr( $test_email ); ?>">
 					
 					<div>
 					<button id="icegram-mailer-send-test-email" class="lighter-gray mt-2 px-4 py-2 text-white rounded">

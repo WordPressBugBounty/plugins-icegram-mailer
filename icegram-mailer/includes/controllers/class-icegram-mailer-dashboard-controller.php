@@ -243,6 +243,40 @@ if ( ! class_exists( 'Icegram_Mailer_Dashboard_Controller' ) ) {
 				
 			} catch ( Exception $e ) {
 				$response['message'] = $e->getMessage();
+
+			}
+
+			return $response;
+		}
+
+		/**
+		 * Delete email from logs
+		 *
+		 * @param array $data Contains email_id.
+		 * @return array Response with status and message.
+		 * @since 1.0.8
+		 */
+		public static function delete_email( $data ) {
+			$response = array(
+				'status'  => 'error',
+				'message' => __( 'Unable to delete email.', 'icegram-mailer' ),
+			);
+
+			// Validate email ID.
+			$email_id = isset( $data['email_id'] ) ? absint( $data['email_id'] ) : 0;
+			if ( empty( $email_id ) ) {
+				$response['message'] = __( 'Invalid email ID.', 'icegram-mailer' );
+				return $response;
+			}
+
+			// Delete email from logs.
+			$deleted = icegram_mailer()->email_logs_table->delete( $email_id );
+
+			if ( $deleted ) {
+				$response['status']  = 'success';
+				$response['message'] = __( 'Email deleted successfully!', 'icegram-mailer' );
+			} else {
+				$response['message'] = __( 'Email not found or could not be deleted.', 'icegram-mailer' );
 			}
 
 			return $response;
