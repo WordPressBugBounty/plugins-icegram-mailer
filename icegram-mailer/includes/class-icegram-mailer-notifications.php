@@ -665,9 +665,9 @@ if ( ! class_exists( 'Icegram_Mailer_Notifications' ) ) {
 
             // Get email statistics from logs table. 
             $logs_table = $wpdb->prefix . 'icegram_mailer_email_logs';
-             
-            // Count successful emails.
+            
             $successful_emails = 0;
+            $failed_emails = 0;
             if ( $wpdb->get_var( "SHOW TABLES LIKE '{$logs_table}'" ) === $logs_table ) {
                 $successful_emails = (int) $wpdb->get_var(
                     $wpdb->prepare(
@@ -676,14 +676,16 @@ if ( ! class_exists( 'Icegram_Mailer_Notifications' ) ) {
                         $billing_cycle_start
                     )
                 );
+                
+                $failed_emails = (int) $wpdb->get_var(
+                    $wpdb->prepare(
+                        "SELECT COUNT(*) FROM {$logs_table} WHERE status = %s AND created_at >= %d",
+                        'failed',
+                        $billing_cycle_start
+                    )
+                );
             }
-            
-            // Calculate failed emails.
-            $failed_emails = $used_limit - $successful_emails;
-            if ( $failed_emails < 0 ) {
-                $failed_emails = 0;
-            }
-            
+                        
             $percentage_used = $allocated_limit > 0 ? ( $used_limit / $allocated_limit ) * 100 : 0;
             
             $this->send_monthly_summary_email( $allocated_limit, $used_limit, $successful_emails, $failed_emails, $percentage_used, $reset_date, $days_to_reset, $billing_cycle_start );

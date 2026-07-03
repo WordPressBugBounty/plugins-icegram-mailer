@@ -3,9 +3,9 @@ Contributors: icegram, niravmehta, sandhyam, kishanranawat
 Donate link: https://icegram.com/
 Tags: Email Delivery, Email Log, Email Marketing, Email Sending, SMTP
 Requires at least: 4.7
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.11
+Stable tag: 1.0.12
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -203,12 +203,21 @@ A: You can view detailed logs and analytics directly from your WordPress dashboa
 
 == Upgrade Notice ==
 
-= 1.0.11 =
+= 1.0.12 =
 
-* Improvement: Added option to customize "Reply-To" email address
-* Improvement: Enhanced email logs management with search, resend, and delete options
+* Update: Tested up to WordPress 7.0
+* Fix: Next reset date now displays in the site's local time
+* Fix: Corrected failed email count in monthly summary emails
+* Fix: Resolved email sending issue with multiple recipients
 
 == Changelog ==
+
+= 1.0.12 =
+
+* Update: Tested up to WordPress 7.0
+* Fix: Next reset date now displays in the site's local time
+* Fix: Corrected failed email count in monthly summary emails
+* Fix: Resolved email sending issue with multiple recipients
 
 = 1.0.11 =
 

@@ -333,12 +333,36 @@ if ( ! class_exists( 'Icegram_Mailer_ESS_Mailer' ) ) {
 			$this->set_tracking_options();
 			$this->enable_sandbox_mode();
 			$this->set_ess_metadata();
+
+			if ( is_string( $message->to ) && false !== strpos( $message->to, ',' ) ) {
+				$message->to = array_map( 'trim', explode( ',', $message->to ) );
+			}
 			
-			$this->set_recipients(
+			if ( is_array( $message->to ) ) {
+				/*
+				* TODO: Combine all recipients into a single `to` field once the ESS
+				* counts individual recipients instead of personalization entries.
+				*
+				* Currently, each recipient is added as a separate personalization
+				* because the ESS tracks email usage based on personalization entries.
+				* At present, combining multiple recipients into a single personalization would
+				* incorrectly count multiple emails as a single email. Therefore we aren't combining recipients for now.
+				*/
+				foreach ( $message->to as $to_email ) {
+					$this->set_recipients(
+						array(
+							'to'  => array( $to_email ),
+						)
+					);
+				}
+			} else {
+				$this->set_recipients(
 				array(
-					'to'  => array( $message->to ),
-				)
-			);
+						'to'  => array( $message->to ),
+					)
+				);	
+			}
+			
 			$this->set_subject( $message->subject );
 			$this->set_content(
 				array(

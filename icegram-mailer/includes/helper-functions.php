@@ -52,7 +52,9 @@ if ( ! function_exists( 'icegram_mailer_convert_gmt_date_to_local_date' ) ) {
 		$convert_date_format = get_option( 'date_format' );
 		$convert_time_format = get_option( 'time_format' );
 
-		return date_i18n( "$convert_date_format $convert_time_format", strtotime( $gmt_date ) );
+		$local_date = get_date_from_gmt( $gmt_date );
+
+		return date_i18n( "$convert_date_format $convert_time_format", strtotime( $local_date ) );
 	}
 }
 
