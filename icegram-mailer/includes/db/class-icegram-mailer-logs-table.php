@@ -59,7 +59,7 @@ class Icegram_Mailer_Logs_Table extends Icegram_Mailer_Base_Table {
 			'body'        => '%s',
 			'status'      => '%s',
 			'attachments' => '%s',
-			'error'       => '%s',
+			'error'       => '%s', 
 			'created_at'  => '%d',
 			'updated_at'  => '%d',
 			'opened_at'   => '%s',
@@ -80,7 +80,7 @@ class Icegram_Mailer_Logs_Table extends Icegram_Mailer_Base_Table {
 			'body'       => '',
 			'attachments' => '',
 			'status'     => '',
-			'error'       => '',
+			'error'       => '', 
 			'created_at' => icegram_mailer_get_current_gmt_timestamp(),
 			'updated_at' => icegram_mailer_get_current_gmt_timestamp(),
 			'opened_at'  => null,
@@ -105,8 +105,28 @@ class Icegram_Mailer_Logs_Table extends Icegram_Mailer_Base_Table {
 			$sql = 'SELECT count(*) as total FROM ' . $this->table_name;
 		} else {
 			$sql = 'SELECT ';
+			
 			if ( ! empty( $query_args['fields'] ) && is_array( $query_args['fields'] ) ) {
-				$sql .= implode( ' ,', $query_args['fields'] );
+				
+				$allowed_fields = array_keys( $this->get_columns() );
+				 
+				$fields = array_intersect( $query_args['fields'], $allowed_fields );
+
+				if ( ! empty( $fields ) ) {
+
+ 					$fields = array_map(
+						static function ( $field ) {
+							return "`{$field}`";
+						},
+						$fields
+					);
+
+					$sql .= implode( ', ', $fields );
+
+				} else {
+					$sql .= '*';
+				}
+
 			} else {
 				$sql .= '*';
 			}

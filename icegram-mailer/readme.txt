@@ -5,7 +5,7 @@ Tags: Email Delivery, Email Log, Email Marketing, Email Sending, SMTP
 Requires at least: 4.7
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.12
+Stable tag: 1.0.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -203,14 +203,15 @@ A: You can view detailed logs and analytics directly from your WordPress dashboa
 
 == Upgrade Notice ==
 
-= 1.0.12 =
+= 1.0.13 =
 
-* Update: Tested up to WordPress 7.0
-* Fix: Next reset date now displays in the site's local time
-* Fix: Corrected failed email count in monthly summary emails
-* Fix: Resolved email sending issue with multiple recipients
+* Enhancement: Improved query sanitization while filtering email logs
 
 == Changelog ==
+
+= 1.0.13 =
+
+* Enhancement: Improved query sanitization while filtering email logs
 
 = 1.0.12 =
 
