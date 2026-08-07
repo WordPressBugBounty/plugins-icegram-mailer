@@ -176,3 +176,36 @@ if ( ! function_exists( 'icegram_mailer_get_ip' ) ) {
 		return $ip;
 	}
 }
+
+if ( ! function_exists( 'icegram_mailer_maybe_define_constant' ) ) {
+	/**
+	 * Define constant
+	 *
+	 * @param $name
+	 * @param $value
+	 *
+	 * @since 1.0.14
+	 */
+	function icegram_mailer_maybe_define_constant( $name, $value ) {
+		if ( ! defined( $name ) ) {
+			define( $name, $value );
+		}
+	}
+}
+
+if ( ! function_exists( 'icegram_mailer_extract_slug_from_path' ) ) {
+
+	/**
+	 * Extract slug from file path relative to base directory
+	 *
+	 * @param string $file Full file path
+	 * @param string $base_dir Base directory path
+	 * @since 1.0.14
+	 */
+	function icegram_mailer_extract_slug_from_path($file, $base_dir) {
+		$relative_path = str_replace($base_dir . '/', '', $file);
+		$parts = explode('/', $relative_path);
+		return isset($parts[0]) ? $parts[0] : '';
+	}
+
+}

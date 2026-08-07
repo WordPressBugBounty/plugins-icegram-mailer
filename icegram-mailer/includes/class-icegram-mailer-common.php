@@ -231,5 +231,49 @@ if ( ! class_exists( 'Icegram_Mailer_Common' ) ) {
 
 			return $is_free_plan;
 		}
+
+		/**
+		 * Get Icegram Mailer Option
+		 *
+		 * @param $option
+		 * @param null   $default
+		 *
+		 * @return mixed|void|null
+		 *
+		 * @since 4.0.15
+		 */
+		public static function get_icegram_mailer_option( $option, $default = null ) {
+
+			if ( empty( $option ) ) {
+				return null;
+			}
+
+			$option_prefix = 'icegram_mailer_';
+
+			return get_option( $option_prefix . $option, $default );
+
+		}
+
+		/**
+		 * Set Icegram Mailer Option
+		 *
+		 * @param $option
+		 * @param $value
+		 *
+		 * @return bool|null
+		 *
+		 * @since 4.0.15
+		 */
+		public static function set_icegram_mailer_option( $option, $value ) {
+
+			if ( empty( $option ) ) {
+				return null;
+			}
+
+			$option_prefix = 'icegram_mailer_';
+
+			return update_option( $option_prefix . $option, $value, false );
+
+		}
 	}
 }

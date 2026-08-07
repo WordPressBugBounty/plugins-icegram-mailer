@@ -21,7 +21,7 @@ if ( ! class_exists( 'Icegram_Mailer_Dashboard_Controller' ) ) {
 		}
 
 		public static function get_lists( $args = array()) {
-
+ 
 			$do_count_only = ! empty( $args['do_count_only'] );
 			return icegram_mailer()->email_logs_table->get_logs( $args, ARRAY_A, $do_count_only );
 

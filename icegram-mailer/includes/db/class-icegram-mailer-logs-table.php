@@ -59,7 +59,8 @@ class Icegram_Mailer_Logs_Table extends Icegram_Mailer_Base_Table {
 			'body'        => '%s',
 			'status'      => '%s',
 			'attachments' => '%s',
-			'error'       => '%s', 
+			'error'       => '%s',
+			'source' 	  => '%s',
 			'created_at'  => '%d',
 			'updated_at'  => '%d',
 			'opened_at'   => '%s',
@@ -80,7 +81,8 @@ class Icegram_Mailer_Logs_Table extends Icegram_Mailer_Base_Table {
 			'body'       => '',
 			'attachments' => '',
 			'status'     => '',
-			'error'       => '', 
+			'error'       => '',
+			'source' 	=> 'unknown',
 			'created_at' => icegram_mailer_get_current_gmt_timestamp(),
 			'updated_at' => icegram_mailer_get_current_gmt_timestamp(),
 			'opened_at'  => null,
@@ -140,6 +142,11 @@ class Icegram_Mailer_Logs_Table extends Icegram_Mailer_Base_Table {
 		if ( isset( $query_args['status'] ) ) {
 			$query[] = 'status = %s';
 			$args[]  = $query_args['status'];
+		}
+
+		if ( ! empty( $query_args['source'] ) ) {
+			$query[] = 'source = %s';
+			$args[]  = $query_args['source'];
 		}
 
 		if ( ! empty( $query_args['created_within_days'] ) ) {
@@ -249,5 +256,24 @@ class Icegram_Mailer_Logs_Table extends Icegram_Mailer_Base_Table {
 		);
 
 		return (bool) $result;
+	}
+
+	/**
+	 * Get distinct source values from email logs
+	 *
+	 * @return array Array of unique source values
+	 * @since 1.0.14
+	 */
+	public function get_distinct_sources() {
+		global $wpdb;
+		
+		$sources = $wpdb->get_col(
+			"SELECT DISTINCT source 
+			FROM {$this->table_name} 
+			WHERE source IS NOT NULL AND source != '' 
+			ORDER BY source ASC"
+		);
+		
+		return ! empty( $sources ) ? $sources : array();
 	}
 }

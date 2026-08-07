@@ -61,7 +61,6 @@ if ( ! class_exists( 'Icegram_Mailer_Client' ) ) {
 
 		public function build_message( $email ) {
 			
-
 			$ess_data = Icegram_Mailer_Account::get_ess_data();
 			$settings = Icegram_Mailer_Settings_Controller::get_settings();
 
@@ -85,7 +84,8 @@ if ( ! class_exists( 'Icegram_Mailer_Client' ) ) {
 			$message->headers        = $headers;
 			$message->reply_to_name  = ! empty( $message_reply_to['name'] ) ? $message_reply_to['name'] : $reply_to_name;
 			$message->reply_to_email = ! empty( $message_reply_to['email'] ) ? $message_reply_to['email'] : $reply_to_email;						
-			
+			$message->source 		 = $this->detect_email_source();
+
 			if ( $this->is_open_tracking_enabled() ) {
 
 				$tracking_id = wp_generate_uuid4();
@@ -315,6 +315,7 @@ if ( ! class_exists( 'Icegram_Mailer_Client' ) ) {
 					'body'        => $message->body,
 					'status'      => $status,
 					'error'       => $message->error,
+					'source'      => $message->source,
 				)
 			);
 		}
@@ -347,5 +348,142 @@ if ( ! class_exists( 'Icegram_Mailer_Client' ) ) {
 			echo esc_html( base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAwAB/UVu6egAAAAASUVORK5CYII=') );
 			exit;
 		}
+
+		/**
+		 * Detect email source from backtrace
+		 *
+		 * @return string
+		 * @since 1.0.14
+		 */
+		private function detect_email_source() {
+
+			$declared_source = apply_filters( 'icegram_mailer_email_source', null );
+
+			if ( $declared_source ) {
+				return sanitize_key( $declared_source );
+			}
+
+			$backtrace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 15 );
+
+			$plugin_dir         = wp_normalize_path( WP_PLUGIN_DIR );
+			$mu_plugin_dir      = wp_normalize_path( WPMU_PLUGIN_DIR );
+			$theme_dir          = wp_normalize_path( get_theme_root() );
+			$wp_includes        = wp_normalize_path( ABSPATH . 'wp-includes' );
+			$wp_admin           = wp_normalize_path( ABSPATH . 'wp-admin' );
+			$current_plugin_dir = wp_normalize_path( dirname( dirname( __FILE__ ) ) );
+
+			$has_wp_mail     = false;
+			$has_wp_core     = false;
+			$has_ig_mailer   = false;
+
+			foreach ( $backtrace as $trace ) {
+
+				if ( isset( $trace['function'] ) && 'wp_mail' === $trace['function'] ) {
+					$has_wp_mail = true;
+				}
+
+				if ( empty( $trace['file'] ) ) {
+					continue;
+				}
+
+				$file = wp_normalize_path( $trace['file'] );
+
+				// Remember if Icegram Mailer is in the call stack,
+				// but don't return yet.
+				if ( strpos( $file, $current_plugin_dir ) === 0 ) {
+					$has_ig_mailer = true;
+					continue;
+				}
+
+				// Skip WP core wrappers.
+				if ( strpos( $file, $wp_includes ) === 0 || strpos( $file, $wp_admin ) === 0 ) {
+					$has_wp_core = true;
+					continue;
+				}
+
+				if ( strpos( $file, $plugin_dir ) === 0 ) {
+					return $this->extract_plugin_slug( $file, $plugin_dir );
+				}
+
+				if ( strpos( $file, $mu_plugin_dir ) === 0 ) {
+					return $this->extract_mu_plugin_slug( $file, $mu_plugin_dir );
+				}
+				if ( strpos( $file, $theme_dir ) === 0 ) {
+					return $this->extract_theme_slug( $file, $theme_dir );
+				}
+			}
+
+			/*
+			* If no external source was found but Icegram Mailer
+			* initiated the email itself (monthly summary,
+			* limit notification, delivery notification, etc.),
+			* return Icegram Mailer. 
+			*/
+			if ( $has_ig_mailer && ! $has_wp_mail ) {
+				return 'icegram_mailer';
+			}
+
+			if ( $has_wp_core ) {
+				return 'wp_core';
+			}
+
+			return 'unknown';
+		} 
+
+		/**
+		 * Extract plugin slug from file path
+		 *
+		 * @param string $file Full file path
+		 * @param string $plugin_dir Plugin directory path
+		 * @return string
+		 */
+		private function extract_plugin_slug($file, $plugin_dir) {
+			
+    		$plugin_slug = icegram_mailer_extract_slug_from_path($file, $plugin_dir);
+
+			return apply_filters('icegram_mailer_detected_plugin_source', $plugin_slug, $file);
+		}
+
+		/**
+		 * Extract mu-plugin slug from file path
+		 *
+		 * @param string $file Full file path
+		 * @param string $mu_plugin_dir MU-Plugin directory path
+		 * @return string
+		 */
+		private function extract_mu_plugin_slug($file, $mu_plugin_dir) {
+			$relative_path = str_replace($mu_plugin_dir . '/', '', $file);
+			$parts = explode('/', $relative_path);
+			
+			if (count($parts) === 1) {
+				$slug = basename($parts[0], '.php');
+			} else {
+				$slug = $parts[0];
+			}
+			
+			return 'mu_' . sanitize_key(str_replace('-', '_', $slug));
+		}
+
+		/**
+		 * Extract theme slug from file path
+		 *
+		 * @param string $file Full file path
+		 * @param string $theme_dir Theme root directory path
+		 * @return string
+		 */
+		private function extract_theme_slug($file, $theme_dir) {
+			$theme_slug = icegram_mailer_extract_slug_from_path($file, $theme_dir);
+
+			$active_theme = get_stylesheet();
+			$parent_theme = get_template();
+			
+			if ($theme_slug === sanitize_key($active_theme)) {
+				return 'theme_' . $theme_slug . '_active';
+			} elseif ($theme_slug === sanitize_key($parent_theme)) {
+				return 'theme_' . $theme_slug . '_parent';
+			}
+			
+			return 'theme_' . $theme_slug;
+		} 
 	}
 }

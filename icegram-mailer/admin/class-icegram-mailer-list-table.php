@@ -29,10 +29,17 @@ class Icegram_Mailer_List_Table extends WP_List_Table {
 	 */
 	protected function extra_tablenav( $which ) {
 		if ( 'top' === $which ) {
+
+			// Show source filter box
+            if ( method_exists( $this, 'show_source_filter_dropdown' ) ) {
+                $this->show_source_filter_dropdown();
+            }
+
 			// Show search box aligned with bulk actions
 			if ( method_exists( $this, 'search_box' ) ) {
                 $this->search_box( __( 'Search Logs', 'icegram-mailer' ), 'email-log' );
             }
+			
 		}
 	}
 

@@ -159,6 +159,8 @@ class Icegram_Mailer {
 			'/includes/class-icegram-mailer-ess-mailer.php',
 			'/includes/class-icegram-mailer-express-integration.php',
 			'/includes/class-icegram-mailer-router.php',
+			'/includes/upgrade/icegram-mailer-update-functions.php',
+			'/includes/class-icegram-mailer-installer.php',
 			'/includes/controllers/class-icegram-mailer-onboarding-controller.php',
 			'/includes/controllers/class-icegram-mailer-dashboard-controller.php',
 			'/includes/controllers/class-icegram-mailer-settings-controller.php',

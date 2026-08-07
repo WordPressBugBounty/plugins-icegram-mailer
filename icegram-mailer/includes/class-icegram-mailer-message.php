@@ -131,6 +131,8 @@ if ( ! class_exists( 'Icegram_Mailer_Message' ) ) {
 		 */
 		public $charset = '';
 
+		public $source = 'unknown';
+
 		public function __construct() {
 
 		}

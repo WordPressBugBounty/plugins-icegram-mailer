@@ -116,6 +116,10 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 								if ( ! empty( $current_status ) ) {
 									echo '<input type="hidden" name="status" value="' . esc_attr( $current_status ) . '" />';
 								}
+
+								if ( ! empty( $_GET['source'] ) ) {
+									echo '<input type="hidden" name="source" value="' . esc_attr( sanitize_text_field( wp_unslash( $_GET['source'] ) ) ) . '" />';
+								}
 								?>
 
 								<!-- Display views (All, Sent, Failed) -->
@@ -154,6 +158,11 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 		$current_status = $this->get_current_status();
 		if ( ! empty( $current_status ) ) {
 			$args['status'] = $current_status;
+		} 
+
+		// Add source filter if present
+		if ( ! empty( $_REQUEST['source'] ) ) {
+			$args['source'] = sanitize_text_field( wp_unslash( $_REQUEST['source'] ) );
 		}
 
 		// Add search filter if present
@@ -197,6 +206,10 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 			case 'status':
 				$status = $item[ 'status' ];
 				return ! empty( $status ) ? ( '<span class="icegram-mailer-email-' . $item['status'] . '" ' . ( 'failed' === $status ? 'title="' . $item['error'] . '"' : '' ) . '>' . ucfirst( $status ) . '</span>' ) : '-';
+			case 'source':
+				$source = ! empty( $item['source'] ) ? $item['source'] : 'unknown';
+				$formatted_source = ucwords( str_replace( '_', ' ', $source ) );
+				return '<span class="icegram-mailer-source">' . esc_html( $formatted_source ) . '</span>';
 			default:
 				$column_data = isset( $item[ $column_name ] ) ? $item[ $column_name ] : '-';
 				return apply_filters( 'icegram_mailer_contact_column_data', $column_data, $column_name, $item, $this );
@@ -262,6 +275,7 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 			'cb'         => '<input type="checkbox" />',
 			'subject'    => __( 'Subject', 'icegram-mailer' ),
 			'to'         => __( 'To', 'icegram-mailer' ),
+			'source'     => __( 'Source', 'icegram-mailer' ),
 			'status'     => __( 'Status', 'icegram-mailer' ),
 			'created_at' => __( 'Sent at', 'icegram-mailer' ),
 			'opened_at'  => __( 'Opened at', 'icegram-mailer' ),
@@ -320,6 +334,10 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 		// Preserve status filter if set
 		if ( ! empty( $_GET['status'] ) ) {
 			$filters['status'] = sanitize_text_field( wp_unslash( $_GET['status'] ) );
+		}
+
+		if ( ! empty( $_GET['source'] ) ) {
+			$filters['source'] = sanitize_text_field( wp_unslash( $_GET['source'] ) );
 		}
 		
 		// Preserve search query if not empty
@@ -437,7 +455,7 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 	 */
 	protected function get_current_status() {
 		$status = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : '';
-		$valid_statuses = array( 'sent', 'failed' );
+		$valid_statuses = array( 'sent', 'failed', 'opened' );
 		
 		return in_array( $status, $valid_statuses, true ) ? $status : '';
 	}
@@ -459,6 +477,8 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 		$sent_count = icegram_mailer()->email_logs_table->get_logs( array( 'status' => 'sent' ), ARRAY_A, true );
 		
 		$failed_count = icegram_mailer()->email_logs_table->get_logs( array( 'status' => 'failed' ), ARRAY_A, true );
+
+		$opened_count = icegram_mailer()->email_logs_table->get_logs( array( 'status' => 'opened' ), ARRAY_A, true );    
 		
 		$views = array();
 		
@@ -478,6 +498,15 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 			'sent' === $current_status ? 'current' : '',
 			__( 'Sent', 'icegram-mailer' ),
 			$sent_count
+		); 
+
+		// Opened emails
+		$views['opened'] = sprintf(
+			'<a href="%s" class="%s">%s <span class="count">(%d)</span></a>',
+			add_query_arg( 'status', 'opened', $base_url ),
+			'opened' === $current_status ? 'current' : '',
+			__( 'Opened', 'icegram-mailer' ),
+			$opened_count
 		);
 		
 		// Failed emails
@@ -521,6 +550,62 @@ class Icegram_Mailer_Email_List_Table extends Icegram_Mailer_List_Table {
 		</p>
 		<?php
 	}
+
+	/**
+	 * Get available source options for filtering
+	 *
+	 * @return array Array of source values
+	 * @since 1.0.14
+	 */
+	protected function get_source_options() {
+		return $this->db->get_distinct_sources();
+	}
+
+	/**
+     * Display source filter dropdown
+     *
+     * @param string $button_text The 'submit' button label (optional)
+     * @param string $input_id ID attribute value for the select field
+     *
+     * @since 1.0.14
+     */
+    public function show_source_filter_dropdown( $button_text = '', $input_id = 'source-filter' ) {
+        
+        global $wpdb;
+        
+		$sources = $this->get_source_options();
+    
+		if ( empty( $sources ) ) {
+			return;
+		}
+		
+		if ( empty( $button_text ) ) {
+			$button_text = __( 'Filter', 'icegram-mailer' );
+		}
+		
+		$current_source = isset( $_GET['source'] ) ? sanitize_text_field( wp_unslash( $_GET['source'] ) ) : '';		
+		
+        ?>
+        <div class="alignleft actions">
+            <label for="<?php echo esc_attr( $input_id ); ?>" class="screen-reader-text">
+                <?php esc_html_e( 'Filter by source', 'icegram-mailer' ); ?>
+            </label>
+            <select name="source" id="<?php echo esc_attr( $input_id ); ?>">
+                <option value=""><?php esc_html_e( 'All Sources', 'icegram-mailer' ); ?></option>
+                <?php foreach ( $sources as $source ) : ?>
+                    <?php
+                    // Format source name for display (replace underscores with spaces, capitalize)
+                    $display_name = ucwords( str_replace( '_', ' ', $source ) );
+                    ?>
+                    <option value="<?php echo esc_attr( $source ); ?>" <?php selected( $current_source, $source ); ?>>
+                        <?php echo esc_html( $display_name ); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <?php submit_button( $button_text, '', 'filter_source', false, array( 'id' => 'source-filter-submit' ) ); ?>
+        </div>
+        <?php
+    }
 
 	/**
 	 * Display the list table with views/filters above

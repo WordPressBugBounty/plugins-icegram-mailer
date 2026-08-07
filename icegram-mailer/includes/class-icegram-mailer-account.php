@@ -750,7 +750,7 @@ class Icegram_Mailer_Account {
 
 	public static function get_ess_email() {
 		$mailer_settings = get_option( 'icegram_mailer_mailer_settings', array() );
-		$ess_email       = ! empty( $mailer_settings['icegram']['email'] ) ? $mailer_settings['icegram']['email'] : ES_Common::get_admin_email();
+		$ess_email       = ! empty( $mailer_settings['icegram']['email'] ) ? $mailer_settings['icegram']['email'] : get_option( 'admin_email' );
 		return $ess_email;
 	}
 

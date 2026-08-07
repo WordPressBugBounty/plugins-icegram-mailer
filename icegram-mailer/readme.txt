@@ -5,7 +5,7 @@ Tags: Email Delivery, Email Log, Email Marketing, Email Sending, SMTP
 Requires at least: 4.7
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.13
+Stable tag: 1.0.14
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -203,11 +203,15 @@ A: You can view detailed logs and analytics directly from your WordPress dashboa
 
 == Upgrade Notice ==
 
-= 1.0.13 =
+= 1.0.14 =
 
-* Enhancement: Improved query sanitization while filtering email logs
+* New: Added email source detection and filtering in Email Logs
 
 == Changelog ==
+
+= 1.0.14 =
+
+* New: Added email source detection and filtering in Email Logs
 
 = 1.0.13 =
 
