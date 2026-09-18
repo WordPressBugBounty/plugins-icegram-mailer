@@ -249,6 +249,43 @@ if ( ! class_exists( 'Icegram_Mailer_ESS_Mailer' ) ) {
 		}
 
 		/**
+		 * Convert Icegram Express email tags to mailer tags
+		 * 
+		 * This function is called by Express plugin to do keyword replacement while sending bulk emails
+		 * 
+		 * @param string $string
+		 * 
+		 * @return string $string
+		 * 
+		 * @since 1.0.15
+		 */
+		public function convert_es_tags_to_mailer_tags( $string = '' ) {
+
+			$mailer_tags_mapping = array(
+				'subscriber.name'             => '-name-',
+				'subscriber.first_name'        => '-first_name-',
+				'subscriber.last_name'         => '-last_name-',
+				'subscriber.email'            => '-email-',
+				'subscriber.unsubscribe_link' => '-unsubscribe_link-',
+				'subscriber.subscribe_link'   => '-subscribe_link-',
+			);
+
+			$mailer_tags_mapping = apply_filters( 'icegram_mailer_mailer_tags_mapping', $mailer_tags_mapping );
+			
+			$string = ES_Common::replace_keywords_with_fallback( $string, $mailer_tags_mapping );
+
+			return ES_Common::replace_keywords_with_fallback( $string, array(
+				'NAME'             => '-name-',
+				'FIRSTNAME'        => '-first_name-',
+				'LASTNAME'         => '-last_name-',
+				'EMAIL'            => '-email-',
+				'UNSUBSCRIBE-LINK' => '-unsubscribe_link-',
+				'SUBSCRIBE-LINK'   => '-subscribe_link-',
+			) );
+		}
+
+
+		/**
 		 * Get variable prefix
 		 * 
 		 * @return string

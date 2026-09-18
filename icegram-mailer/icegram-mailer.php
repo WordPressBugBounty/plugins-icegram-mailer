@@ -16,10 +16,10 @@
  * Plugin Name:       Icegram Mailer
  * Plugin URI:        https://icegram.com
  * Description:       Plugin to send emails via Icegram sending service
- * Version:           1.0.14
+ * Version:           1.0.15
  * Author:            Icegram
  * Requires at least: 4.7
- * Tested up to: 	  7.0
+ * Tested up to: 	  7.1
  * Requires PHP: 	  7.0
  * Author URI:        https://icegram.com/
  * License:           GPL-2.0+
@@ -39,7 +39,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Rename this for your plugin and update it as you release new versions.
  */
 if ( ! defined( 'ICEGRAM_MAILER_VERSION' ) ) {
-	define( 'ICEGRAM_MAILER_VERSION', '1.0.14' );
+	define( 'ICEGRAM_MAILER_VERSION', '1.0.15' );
 }
 
 if ( ! defined( 'ICEGRAM_MAILER_FEEDBACK_VERSION' ) ) {

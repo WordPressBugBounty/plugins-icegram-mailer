@@ -3,9 +3,9 @@ Contributors: icegram, niravmehta, sandhyam, kishanranawat
 Donate link: https://icegram.com/
 Tags: Email Delivery, Email Log, Email Marketing, Email Sending, SMTP
 Requires at least: 4.7
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 1.0.14
+Stable tag: 1.0.15
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -203,11 +203,17 @@ A: You can view detailed logs and analytics directly from your WordPress dashboa
 
 == Upgrade Notice ==
 
-= 1.0.14 =
+= 1.0.15 =
 
-* New: Added email source detection and filtering in Email Logs
+* Update: Tested up to WordPress 7.1 
+* Fix: Subscriber keywords were not replaced in emails sent via Icegram Express
 
 == Changelog ==
+
+= 1.0.15 =
+
+* Update: Tested up to WordPress 7.1 
+* Fix: Subscriber keywords were not replaced in emails sent via Icegram Express
 
 = 1.0.14 =
 
